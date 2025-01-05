@@ -12,6 +12,7 @@ type FileSystem interface {
 	Stat(name string) (os.FileInfo, error)
 	Create(name string) (*os.File, error)
 	ReadFile(name string) (string, error)
+	WriteFile(name string, content string) error
 }
 
 type fileSystem struct{}
@@ -26,6 +27,10 @@ func (f *fileSystem) Stat(name string) (os.FileInfo, error) {
 
 func (f *fileSystem) Create(name string) (*os.File, error) {
 	return os.Create(name)
+}
+
+func (f *fileSystem) WriteFile(name string, content string) error {
+	return os.WriteFile(name, []byte(content), 0644)
 }
 
 func (f *fileSystem) ReadFile(name string) (string, error) {

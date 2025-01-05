@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -24,4 +25,17 @@ func readConfigFile(fs FileSystem) ([]Config, error) {
 		}
 	}
 	return configs, nil
+}
+
+func writeConfigFile(fs FileSystem, configs []Config) error {
+	content := ""
+	for _, config := range configs {
+		content += fmt.Sprintf("%s %s %s\n", config.Domain, config.Key, config.Value)
+	}
+	userHome, err := fs.UserHomeDir()
+	if err != nil {
+		return err
+	}
+	configFile := userHome + "/.config" + ".mdefaults"
+	return fs.WriteFile(configFile, content)
 }

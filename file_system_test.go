@@ -13,6 +13,7 @@ type MockFileSystem struct {
 	statError         error
 	createErr         error
 	configFileContent string
+	writeFileErr      error
 }
 
 func (m MockFileSystem) UserHomeDir() (string, error) {
@@ -38,6 +39,10 @@ func (m MockFileSystem) ReadFile(name string) (string, error) {
 		return "", m.statError
 	}
 	return m.configFileContent, nil
+}
+
+func (m MockFileSystem) WriteFile(name string, content string) error {
+	return m.writeFileErr
 }
 
 func TestSetupConfigFile_CreatesFileIfNotExist(t *testing.T) {
