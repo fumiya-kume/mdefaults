@@ -40,3 +40,16 @@ func setupConfigFile(fs OSFileSystem) {
 		fs.Create(configFile)
 	}
 }
+
+func readConfigFile(fs OSFileSystem) (string, error) {
+	home, err := fs.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	configFile := filepath.Join(home, ".config", ".mdefaults")
+	content, err := os.ReadFile(configFile)
+	if err != nil {
+		return "", err
+	}
+	return string(content), nil
+}
