@@ -27,18 +27,18 @@ func (f *osFileSystem) Create(name string) (*os.File, error) {
 	return os.Create(name)
 }
 
-// setupConfigFile checks for the existence of the config file and creates it if it doesn't exist
-func setupConfigFile(fs OSFileSystem) {
+// createConfigFileIfMissing checks for the existence of the config file and creates it if it doesn't exist
+func createConfigFileIfMissing(fs OSFileSystem) error {
 	home, err := fs.UserHomeDir()
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 	configFile := filepath.Join(home, ".config", ".mdefaults")
 	if _, err := fs.Stat(configFile); os.IsNotExist(err) {
 		fmt.Println("Config file not found, creating it")
 		fs.Create(configFile)
 	}
+	return nil
 }
 
 func readConfigFile(fs OSFileSystem) (string, error) {

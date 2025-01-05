@@ -32,7 +32,7 @@ func TestSetupConfigFile_CreatesFileIfNotExist(t *testing.T) {
 		createErr: nil,
 	}
 
-	setupConfigFile(fs)
+	createConfigFileIfMissing(fs)
 	if fs.createErr != nil {
 		t.Errorf("Expected create error to be nil but got %v", fs.createErr)
 	}
@@ -45,7 +45,7 @@ func TestSetupConfigFile_DoesNotCreateFileIfExists(t *testing.T) {
 		createErr: nil,
 	}
 
-	setupConfigFile(fs)
+	createConfigFileIfMissing(fs)
 	if fs.createErr != nil {
 		t.Errorf("Expected create error to be nil but got %v", fs.createErr)
 	}
@@ -58,7 +58,7 @@ func TestSetupConfigFile_HandleUserHomeDirError(t *testing.T) {
 		createErr: nil,
 	}
 
-	setupConfigFile(fs)
+	createConfigFileIfMissing(fs)
 	if fs.createErr != nil {
 		t.Errorf("Expected create error to be nil but got %v", fs.createErr)
 	}

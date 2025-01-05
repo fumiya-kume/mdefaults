@@ -7,8 +7,7 @@ import (
 
 func main() {
 	fs := &osFileSystem{}
-	setupConfigFile(fs)
-	// print config file content
+	createConfigFileIfMissing(fs)
 	content, err := readConfigFile(fs)
 	if err != nil {
 		fmt.Println(err)
