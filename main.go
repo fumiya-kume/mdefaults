@@ -3,11 +3,27 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 )
+
+// 1. make the config file at ~/.config/.mdefaults if missing
+// 2. print the config file
 
 func main() {
 	fmt.Println("Hello, World!")
+
+	home, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Println(err)
+	}
+	configFile := filepath.Join(home, ".config", ".mdefaults")
+	if _, err := os.Stat(configFile); os.IsNotExist(err) {
+		fmt.Println("Config file not found, creating it")
+		os.Create(configFile)
+	}
+
 	defaults := &DefaultsCommandImpl{
 		domain: "com.apple.dock",
 		key:    "autohide",
