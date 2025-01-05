@@ -6,9 +6,9 @@ import (
 )
 
 func main() {
-	fs := &osFileSystem{}
+	fs := &fileSystem{}
 	createConfigFileIfMissing(fs)
-	content, err := readConfigFile(fs)
+	content, err := readConfigFileString(fs)
 	if err != nil {
 		fmt.Println(err)
 	}

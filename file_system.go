@@ -4,31 +4,32 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // OSFileSystem is a concrete implementation of FileSystem using the os package
-type OSFileSystem interface {
+type FileSystem interface {
 	UserHomeDir() (string, error)
 	Stat(name string) (os.FileInfo, error)
 	Create(name string) (*os.File, error)
 }
 
-type osFileSystem struct{}
+type fileSystem struct{}
 
-func (f *osFileSystem) UserHomeDir() (string, error) {
+func (f *fileSystem) UserHomeDir() (string, error) {
 	return os.UserHomeDir()
 }
 
-func (f *osFileSystem) Stat(name string) (os.FileInfo, error) {
+func (f *fileSystem) Stat(name string) (os.FileInfo, error) {
 	return os.Stat(name)
 }
 
-func (f *osFileSystem) Create(name string) (*os.File, error) {
+func (f *fileSystem) Create(name string) (*os.File, error) {
 	return os.Create(name)
 }
 
 // createConfigFileIfMissing checks for the existence of the config file and creates it if it doesn't exist
-func createConfigFileIfMissing(fs OSFileSystem) error {
+func createConfigFileIfMissing(fs FileSystem) error {
 	home, err := fs.UserHomeDir()
 	if err != nil {
 		return err
@@ -41,7 +42,7 @@ func createConfigFileIfMissing(fs OSFileSystem) error {
 	return nil
 }
 
-func readConfigFile(fs OSFileSystem) (string, error) {
+func readConfigFileString(fs FileSystem) (string, error) {
 	home, err := fs.UserHomeDir()
 	if err != nil {
 		return "", err
@@ -52,4 +53,22 @@ func readConfigFile(fs OSFileSystem) (string, error) {
 		return "", err
 	}
 	return string(content), nil
+}
+
+type Config struct {
+	Domain string
+	Key    string
+	Value  string
+}
+
+func readConfigFile(fs FileSystem) ([]Config, error) {
+	content, err := readConfigFileString(fs)
+	if err != nil {
+		return nil, err
+	}
+	configs := []Config{}
+	for _, line := range strings.Split(content, "\n") {
+		configs = append(configs, Config{Domain: line})
+	}
+	return configs, nil
 }
