@@ -14,6 +14,7 @@ type MockFileSystem struct {
 	createErr         error
 	configFileContent string
 	writeFileErr      error
+	writeFileContent  string
 }
 
 func (m MockFileSystem) UserHomeDir() (string, error) {
@@ -42,6 +43,7 @@ func (m MockFileSystem) ReadFile(name string) (string, error) {
 }
 
 func (m MockFileSystem) WriteFile(name string, content string) error {
+	m.writeFileContent = content
 	return m.writeFileErr
 }
 

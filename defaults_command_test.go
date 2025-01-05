@@ -3,12 +3,11 @@ package main
 import (
 	"context"
 	"errors"
-	"os/exec"
 	"testing"
 )
 
 func TestDefaultsCommandReadSuccess(t *testing.T) {
-	defaults := &MockDefaultsCommandImpl{
+	defaults := &MockDefaultsCommand{
 		ReadResult: "true",
 		ReadError:  nil,
 	}
@@ -22,7 +21,7 @@ func TestDefaultsCommandReadSuccess(t *testing.T) {
 }
 
 func TestDefaultsCommandReadError(t *testing.T) {
-	defaults := &MockDefaultsCommandImpl{
+	defaults := &MockDefaultsCommand{
 		ReadError: errors.New("read error"),
 	}
 	_, err := defaults.Read(context.Background())
@@ -32,7 +31,7 @@ func TestDefaultsCommandReadError(t *testing.T) {
 }
 
 func TestDefaultsCommandWriteSuccess(t *testing.T) {
-	defaults := &MockDefaultsCommandImpl{
+	defaults := &MockDefaultsCommand{
 		WriteError: nil,
 	}
 	err := defaults.Write(context.Background(), "true")
@@ -42,7 +41,7 @@ func TestDefaultsCommandWriteSuccess(t *testing.T) {
 }
 
 func TestDefaultsCommandWriteError(t *testing.T) {
-	defaults := &MockDefaultsCommandImpl{
+	defaults := &MockDefaultsCommand{
 		WriteError: errors.New("write error"),
 	}
 	err := defaults.Write(context.Background(), "true")
@@ -51,17 +50,16 @@ func TestDefaultsCommandWriteError(t *testing.T) {
 	}
 }
 
-type MockDefaultsCommandImpl struct {
+type MockDefaultsCommand struct {
 	ReadResult string
 	ReadError  error
 	WriteError error
-	Exec       *exec.Cmd
 }
 
-func (m *MockDefaultsCommandImpl) Read(ctx context.Context) (string, error) {
+func (m *MockDefaultsCommand) Read(ctx context.Context) (string, error) {
 	return m.ReadResult, m.ReadError
 }
 
-func (m *MockDefaultsCommandImpl) Write(ctx context.Context, value string) error {
+func (m *MockDefaultsCommand) Write(ctx context.Context, value string) error {
 	return m.WriteError
 }

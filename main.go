@@ -19,28 +19,34 @@ func main() {
 	}
 
 	if command == "pull" {
-		pull(fs, configs)
+		for i := 0; i < len(configs); i++ {
+			pull(fs, configs, &DefaultsCommandImpl{
+				domain: configs[i].Domain,
+				key:    configs[i].Key,
+			})
+		}
 	} else if command == "push" {
 		push(configs)
 	}
 }
 
-func pull(fs FileSystem, configs []Config) {
+func pull(fs FileSystem, configs []Config, defaults DefaultsCommand) {
+	updatedConfigs := make([]Config, 0, len(configs))
 	for _, config := range configs {
-		readConfigFromMacos(config)
+		updatedConfig, err := readConfigFromMacos(config, defaults)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		updatedConfigs = append(updatedConfigs, updatedConfig)
 	}
-	writeConfigFile(fs, configs)
+	writeConfigFile(fs, updatedConfigs)
 }
 
-func readConfigFromMacos(config Config) (Config, error) {
-	defaults := DefaultsCommandImpl{
-		domain: config.Domain,
-		key:    config.Key,
-	}
-
+func readConfigFromMacos(config Config, defaults DefaultsCommand) (Config, error) {
 	value, err := defaults.Read(context.Background())
 	if err != nil {
-		fmt.Println(err)
+		return Config{}, err
 	}
 	config.Value = value
 	return config, nil
@@ -48,7 +54,7 @@ func readConfigFromMacos(config Config) (Config, error) {
 
 func push(configs []Config) {
 	for _, config := range configs {
-		defaults := DefaultsCommandImpl{
+		defaults := &DefaultsCommandImpl{
 			domain: config.Domain,
 			key:    config.Key,
 		}
