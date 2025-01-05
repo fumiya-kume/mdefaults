@@ -1,27 +1,17 @@
 package main
 
 import (
-	"context"
 	"fmt"
 )
 
 func main() {
 	fs := &fileSystem{}
 	createConfigFileIfMissing(fs)
-	content, err := readConfigFileString(fs)
+	configs, err := readConfigFile(fs)
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(string(content))
-
-	defaults := &DefaultsCommandImpl{
-		domain: "com.apple.dock",
-		key:    "autohide",
+	for i := 0; i < len(configs); i++ {
+		fmt.Printf("- %s %s\n", configs[i].Domain, configs[i].Key)
 	}
-
-	result, err := defaults.Read(context.Background())
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(result)
 }
