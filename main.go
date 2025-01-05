@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	fs := OSFileSystem{}
+	fs := &osFileSystem{}
 	setupConfigFile(fs)
 
 	defaults := &DefaultsCommandImpl{

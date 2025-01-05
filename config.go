@@ -7,17 +7,23 @@ import (
 )
 
 // OSFileSystem is a concrete implementation of FileSystem using the os package
-type OSFileSystem struct{}
+type OSFileSystem interface {
+	UserHomeDir() (string, error)
+	Stat(name string) (os.FileInfo, error)
+	Create(name string) (*os.File, error)
+}
 
-func (OSFileSystem) UserHomeDir() (string, error) {
+type osFileSystem struct{}
+
+func (f *osFileSystem) UserHomeDir() (string, error) {
 	return os.UserHomeDir()
 }
 
-func (OSFileSystem) Stat(name string) (os.FileInfo, error) {
+func (f *osFileSystem) Stat(name string) (os.FileInfo, error) {
 	return os.Stat(name)
 }
 
-func (OSFileSystem) Create(name string) (*os.File, error) {
+func (f *osFileSystem) Create(name string) (*os.File, error) {
 	return os.Create(name)
 }
 
