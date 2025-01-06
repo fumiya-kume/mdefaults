@@ -1,7 +1,7 @@
 # I want to make the workflow that auto update the tag on Github
 # I can choose major, minor, patch, and then increase the corresponding version number for the add tag
 
-name: Version Up
+name: version_up
 on:
   workflow_dispatch:
     inputs:
