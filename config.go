@@ -25,7 +25,8 @@ func readConfigFile(fs FileSystem) ([]Config, error) {
 	configs := []Config{}
 	for _, line := range strings.Split(content, "\n") {
 		if line != "" {
-			configs = append(configs, Config{Domain: line})
+			parts := strings.Split(line, " ")
+			configs = append(configs, Config{Domain: parts[0], Key: parts[1], Value: parts[2]})
 		}
 	}
 	return configs, nil

@@ -7,7 +7,7 @@ import (
 )
 
 func TestReadConfigFile_Success(t *testing.T) {
-	fs := &MockFileSystem{homeDir: "/mock/home", statError: nil, createErr: nil, configFileContent: "com.apple.dock\nautohide\n"}
+	fs := &MockFileSystem{homeDir: "/mock/home", statError: nil, createErr: nil, configFileContent: "com.apple.dock autohide 1\n"}
 
 	configs, err := readConfigFile(fs)
 	if err != nil {
@@ -15,8 +15,7 @@ func TestReadConfigFile_Success(t *testing.T) {
 	}
 
 	expectedConfigs := []Config{
-		{Domain: "com.apple.dock"},
-		{Domain: "autohide"},
+		{Domain: "com.apple.dock", Key: "autohide", Value: "1"},
 	}
 
 	if len(configs) != len(expectedConfigs) {
@@ -26,6 +25,12 @@ func TestReadConfigFile_Success(t *testing.T) {
 	for i, config := range configs {
 		if config.Domain != expectedConfigs[i].Domain {
 			t.Errorf("Expected domain %s, got %s", expectedConfigs[i].Domain, config.Domain)
+		}
+		if config.Key != expectedConfigs[i].Key {
+			t.Errorf("Expected key %s, got %s", expectedConfigs[i].Key, config.Key)
+		}
+		if config.Value != expectedConfigs[i].Value {
+			t.Errorf("Expected value %s, got %s", expectedConfigs[i].Value, config.Value)
 		}
 	}
 }
