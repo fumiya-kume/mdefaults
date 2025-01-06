@@ -42,3 +42,28 @@ func TestReadConfigFile_Error(t *testing.T) {
 		t.Errorf("Expected error to contain 'read error', got %v", err)
 	}
 }
+
+func TestGenerateConfigFileContent(t *testing.T) {
+	configs := []Config{
+		{Domain: "com.apple.dock", Key: "autohide", Value: "1"},
+		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: "true"},
+	}
+
+	expectedContent := "com.apple.dock autohide 1\ncom.apple.finder ShowPathbar true\n"
+	content := generateConfigFileContent(configs)
+
+	if content != expectedContent {
+		t.Errorf("Expected content %q, got %q", expectedContent, content)
+	}
+}
+
+func TestGenerateConfigFileContent_Empty(t *testing.T) {
+	configs := []Config{}
+
+	expectedContent := ""
+	content := generateConfigFileContent(configs)
+
+	if content != expectedContent {
+		t.Errorf("Expected content %q, got %q", expectedContent, content)
+	}
+}

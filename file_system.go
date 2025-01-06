@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -49,7 +48,6 @@ func createConfigFileIfMissing(fs FileSystem) error {
 	}
 	configFile := filepath.Join(home, ".config", ".mdefaults")
 	if _, err := fs.Stat(configFile); os.IsNotExist(err) {
-		fmt.Println("Config file not found, creating it")
 		fs.Create(configFile)
 	}
 	return nil

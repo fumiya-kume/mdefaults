@@ -27,11 +27,17 @@ func readConfigFile(fs FileSystem) ([]Config, error) {
 	return configs, nil
 }
 
-func writeConfigFile(fs FileSystem, configs []Config) error {
+// generateConfigFileContent generates the content for the configuration file from a slice of Config.
+func generateConfigFileContent(configs []Config) string {
 	content := ""
 	for _, config := range configs {
 		content += fmt.Sprintf("%s %s %s\n", config.Domain, config.Key, config.Value)
 	}
+	return content
+}
+
+func writeConfigFile(fs FileSystem, configs []Config) error {
+	content := generateConfigFileContent(configs)
 	userHome, err := fs.UserHomeDir()
 	if err != nil {
 		return err

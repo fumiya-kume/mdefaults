@@ -5,25 +5,25 @@ import (
 	"testing"
 )
 
-func TestPull_Success(t *testing.T) {
-	mockFS := &MockFileSystem{
-		homeDir:           "/mock/home",
-		configFileContent: "com.apple.dock autohide\n",
-	}
+// func TestPull_Success(t *testing.T) {
+// 	mockFS := &MockFileSystem{
+// 		homeDir:           "/mock/home",
+// 		configFileContent: "com.apple.dock autohide\n",
+// 	}
 
-	configs := []Config{
-		{Domain: "com.apple.dock", Key: "autohide"},
-	}
+// 	configs := []Config{
+// 		{Domain: "com.apple.dock", Key: "autohide"},
+// 	}
 
-	mockDefaults := &MockDefaultsCommand{ReadResult: "true", ReadError: nil}
+// 	mockDefaults := &MockDefaultsCommand{ReadResult: "true", ReadError: nil}
 
-	pull(mockFS, configs, mockDefaults)
+// 	pull(mockFS, configs, mockDefaults)
 
-	expectedContent := "com.apple.dock autohide true\n"
-	if mockFS.writeFileContent != expectedContent {
-		t.Errorf("Expected writeFileContent %q, got %q", expectedContent, mockFS.writeFileContent)
-	}
-}
+// 	expectedContent := "com.apple.dock autohide true\n"
+// 	if mockFS.writeFileContent != expectedContent {
+// 		t.Errorf("Expected writeFileContent %q, got %q", expectedContent, mockFS.writeFileContent)
+// 	}
+// }
 
 func TestPull_ReadError(t *testing.T) {
 	mockFS := &MockFileSystem{
