@@ -46,7 +46,12 @@ jobs:
           CGO_ENABLED: 1
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
-        run: make release
+        run: |
+          CURRENT_REVISION=$(git rev-parse --short HEAD)
+          VERSION=$(git describe --tags --abbrev=0)
+          BIN=mdefaults
+          go build -ldflags="-s -w -X main.revision=$(CURRENT_REVISION)" -o $(BIN) .
+          zip -r mdefaults-$(GOOS)-$(VERSION).zip $(BIN)
       - name: Archive artifacts
         uses: actions/upload-artifact@v3
         with:
