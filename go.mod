@@ -1,3 +1,3 @@
 module github.com/fumiya-kume/mdefaults/v2
 
-go 1.23.4
+go 1.23
