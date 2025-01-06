@@ -51,11 +51,11 @@ jobs:
           CURRENT_REVISION=${{ github.sha }}
           BIN=mdefaults
           go build -ldflags="-s -w -X main.revision=${CURRENT_REVISION}" -o ${BIN} .
-          zip -r mdefaults-${{ matrix.goos}}-${{ matrix.goarch}}-${{ matrix.os }}-${VERSION}.zip ${BIN}
+          zip -r mdefaults-${{ matrix.goos}}-${{ matrix.goarch}}-${{ matrix.os }}-$(VERSION).zip $(BIN)
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: mdefaults-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.os }}-${VERSION}
+          name: mdefaults-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.os }}-$(VERSION)
           path: mdefaults-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.os }}-*.zip
 
   release:
