@@ -41,12 +41,13 @@ jobs:
         with:
           go-version-file: 'go.mod'
       - name: Build
+        shell: bash
         env:
           CGO_ENABLED: 1
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
         run: |
-          VERSION=${git describe --tags --abbrev=0}
+          VERSION=$(git describe --tags --abbrev=0)
           CURRENT_REVISION=${{ github.sha }}
           BIN=mdefaults
           go build -ldflags="-s -w -X main.revision=${CURRENT_REVISION}" -o ${BIN} .
