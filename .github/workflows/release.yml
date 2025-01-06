@@ -59,7 +59,7 @@ jobs:
       - name: Archive artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.artifact_name }}
+          name: mdefaults-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.ref_name }}
           path: mdefaults-${{ matrix.goos }}-*.zip
 
   release:
