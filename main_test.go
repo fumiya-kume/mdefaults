@@ -17,6 +17,12 @@ func TestPull_Success(t *testing.T) {
 	if len(updatedConfigs) != 1 {
 		t.Errorf("Expected 1 config, got %d", len(updatedConfigs))
 	}
+	if updatedConfigs[0].Domain != "com.apple.dock" {
+		t.Errorf("Expected domain 'com.apple.dock', got %s", updatedConfigs[0].Domain)
+	}
+	if updatedConfigs[0].Key != "autohide" {
+		t.Errorf("Expected key 'autohide', got %s", updatedConfigs[0].Key)
+	}
 	if updatedConfigs[0].Value != "1" {
 		t.Errorf("Expected value '1', got %s", updatedConfigs[0].Value)
 	}
