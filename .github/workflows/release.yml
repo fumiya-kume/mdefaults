@@ -28,11 +28,6 @@ jobs:
             goarch: amd64
             artifact_name: dist-darwin-amd64
             build_deps: brew install coreutils
-          - os: windows-latest
-            goos: windows
-            goarch: amd64
-            artifact_name: dist-windows-amd64
-            build_deps: choco install zip
 
     steps:
       - name: Install build dependencies
