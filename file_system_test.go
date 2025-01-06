@@ -46,28 +46,64 @@ func TestSetupConfigFile_HandleUserHomeDirError(t *testing.T) {
 }
 
 func TestReadConfigFileString_Success(t *testing.T) {
-	expectedContent := "com.apple.dock\nautohide\n"
-	fs := &MockFileSystem{homeDir: "/mock/home", configFileContent: expectedContent}
+	mockFS := &MockFileSystem{
+		configFileContent: "com.apple.dock autohide 1\ncom.apple.finder ShowPathbar true\n",
+	}
 
-	content, err := readConfigFileString(fs)
+	content, err := readConfigFileString(mockFS)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
+	expectedContent := "com.apple.dock autohide 1\ncom.apple.finder ShowPathbar true\n"
+	if content != expectedContent {
+		t.Errorf("Expected content %q, got %q", expectedContent, content)
+	}
+}
+
+func TestReadConfigFileString_Empty(t *testing.T) {
+	mockFS := &MockFileSystem{
+		configFileContent: "",
+	}
+
+	content, err := readConfigFileString(mockFS)
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	expectedContent := ""
 	if content != expectedContent {
 		t.Errorf("Expected content %q, got %q", expectedContent, content)
 	}
 }
 
 func TestReadConfigFileString_Error(t *testing.T) {
-	fs := &MockFileSystem{homeDir: "/mock/home", configFileContent: "", statError: errors.New("read error")}
+	mockFS := &MockFileSystem{
+		statError: errors.New("read error"),
+	}
 
-	_, err := readConfigFileString(fs)
+	_, err := readConfigFileString(mockFS)
 	if err == nil {
 		t.Fatal("Expected error, got nil")
 	}
 
-	if !errors.Is(err, fs.statError) {
-		t.Errorf("Expected error %v, got %v", fs.statError, err)
+	if !errors.Is(err, mockFS.statError) {
+		t.Errorf("Expected error %v, got %v", mockFS.statError, err)
+	}
+}
+
+func TestReadConfigFileString_MalformedContent(t *testing.T) {
+	mockFS := &MockFileSystem{
+		configFileContent: "com.apple.dock autohide\nmalformed line without key\ncom.apple.finder ShowPathbar true\n",
+	}
+
+	content, err := readConfigFileString(mockFS)
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	expectedContent := "com.apple.dock autohide\nmalformed line without key\ncom.apple.finder ShowPathbar true\n"
+	if content != expectedContent {
+		t.Errorf("Expected content %q, got %q", expectedContent, content)
 	}
 }
