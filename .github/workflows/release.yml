@@ -67,9 +67,9 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          name: mdefaults-${{ github.ref_name }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          draft: true
-          generate_release_notes: true
-          files: dist-*/mdefaults*.*
+            name: ${{ github.ref }}
+            token: ${{ secrets.GITHUB_TOKEN }}
+            draft: true
+            generate_release_notes: true
+            files: dist-*/mdefaults*.*
 
