@@ -66,7 +66,6 @@ jobs:
         uses: actions/download-artifact@v3
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
         with:
           name: mdefaults-${{ github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
