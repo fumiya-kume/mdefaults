@@ -1,0 +1,43 @@
+# I want to make the workflow that auto update the tag on Github
+# I can choose major, minor, patch, and then increase the corresponding version number for the add tag
+
+name: Version Up
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Select the type of version bump'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - 'major'
+          - 'minor'
+          - 'patch'
+
+jobs:
+  version_up:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Version Up
+        run: |
+          VERSION=$(git describe --tags --abbrev=0)
+          VERSION_TYPE=${{ inputs.version_type }}
+          VERSION_MAJOR=$(echo $VERSION | cut -d. -f1)
+          VERSION_MINOR=$(echo $VERSION | cut -d. -f2)
+          VERSION_PATCH=$(echo $VERSION | cut -d. -f3)
+          if [ "$VERSION_TYPE" == "major" ]; then
+            VERSION_MAJOR=$((VERSION_MAJOR + 1))
+            VERSION_MINOR=0
+            VERSION_PATCH=0
+          elif [ "$VERSION_TYPE" == "minor" ]; then
+            VERSION_MINOR=$((VERSION_MINOR + 1))
+            VERSION_PATCH=0
+          elif [ "$VERSION_TYPE" == "patch" ]; then
+            VERSION_PATCH=$((VERSION_PATCH + 1))
+          fi
+          NEW_VERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
+          git tag -a v$(NEW_VERSION) -m "Version $(NEW_VERSION)"
+          git push origin v$(NEW_VERSION)
+    
+
