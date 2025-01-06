@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 )
 
@@ -24,14 +25,15 @@ func main() {
 	case "pull":
 		updatedConfigs, err := pull(configs)
 		if err != nil {
-			fmt.Println(err)
-			return
+			log.Fatal(err)
 		}
 		writeConfigFile(fs, updatedConfigs)
+		os.Exit(0)
 	case "push":
 		push(configs)
+		os.Exit(0)
 	default:
-		fmt.Println("Invalid command")
+		log.Fatal("Invalid command")
 	}
 }
 
