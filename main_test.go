@@ -5,25 +5,22 @@ import (
 	"testing"
 )
 
-// func TestPull_Success(t *testing.T) {
-// 	mockFS := &MockFileSystem{
-// 		homeDir:           "/mock/home",
-// 		configFileContent: "com.apple.dock autohide\n",
-// 	}
+func TestPull_Success(t *testing.T) {
+	defaults := []DefaultsCommand{
+		&MockDefaultsCommand{domain: "com.apple.dock", key: "autohide", ReadResult: "1"},
+	}
 
-// 	configs := []Config{
-// 		{Domain: "com.apple.dock", Key: "autohide"},
-// 	}
-
-// 	mockDefaults := &MockDefaultsCommand{ReadResult: "true", ReadError: nil}
-
-// 	pull(mockFS, configs, mockDefaults)
-
-// 	expectedContent := "com.apple.dock autohide true\n"
-// 	if mockFS.writeFileContent != expectedContent {
-// 		t.Errorf("Expected writeFileContent %q, got %q", expectedContent, mockFS.writeFileContent)
-// 	}
-// }
+	updatedConfigs, err := pullImpl(defaults)
+	if err != nil {
+		t.Errorf("Expected nil error, got %v", err)
+	}
+	if len(updatedConfigs) != 1 {
+		t.Errorf("Expected 1 config, got %d", len(updatedConfigs))
+	}
+	if updatedConfigs[0].Value != "1" {
+		t.Errorf("Expected value '1', got %s", updatedConfigs[0].Value)
+	}
+}
 
 func TestPull_ReadError(t *testing.T) {
 
