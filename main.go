@@ -28,6 +28,7 @@ func main() {
 			log.Fatal(err)
 		}
 		writeConfigFile(fs, updatedConfigs)
+
 		os.Exit(0)
 	case "push":
 		push(configs)
@@ -53,7 +54,7 @@ func pullImpl(defaults []DefaultsCommand) ([]Config, error) {
 	for i := 0; i < len(defaults); i++ {
 		value, err := defaults[i].Read(context.Background())
 		if err != nil {
-			return nil, err
+			continue
 		}
 		updatedConfigs = append(updatedConfigs, Config{
 			Domain: defaults[i].Domain(),
