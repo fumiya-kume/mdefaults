@@ -19,7 +19,7 @@ func main() {
 	}
 
 	if command == "pull" {
-		updatedConfigs, err := pull(fs, configs)
+		updatedConfigs, err := pull(configs)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -30,7 +30,7 @@ func main() {
 	}
 }
 
-func pull(fs FileSystem, configs []Config) ([]Config, error) {
+func pull(configs []Config) ([]Config, error) {
 	defaults := make([]DefaultsCommand, 0, len(configs))
 	for i := 0; i < len(configs); i++ {
 		defaults = append(defaults, &DefaultsCommandImpl{
