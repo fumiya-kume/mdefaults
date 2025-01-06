@@ -4,10 +4,11 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"os"
 )
 
 func main() {
-	command := flag.String("command", "pull", "pull or push")
+	command := os.Args[1]
 	flag.Parse()
 	fs := &fileSystem{}
 	createConfigFileIfMissing(fs)
@@ -19,15 +20,18 @@ func main() {
 		fmt.Printf("- %s %s\n", configs[i].Domain, configs[i].Key)
 	}
 
-	if *command == "pull" {
+	switch command {
+	case "pull":
 		updatedConfigs, err := pull(configs)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 		writeConfigFile(fs, updatedConfigs)
-	} else if *command == "push" {
+	case "push":
 		push(configs)
+	default:
+		fmt.Println("Invalid command")
 	}
 }
 
