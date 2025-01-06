@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
-	"os"
 )
 
 func main() {
-	command := os.Args[1]
+	command := flag.String("command", "pull", "pull or push")
+	flag.Parse()
 	fs := &fileSystem{}
 	createConfigFileIfMissing(fs)
 	configs, err := readConfigFile(fs)
@@ -18,14 +19,14 @@ func main() {
 		fmt.Printf("- %s %s\n", configs[i].Domain, configs[i].Key)
 	}
 
-	if command == "pull" {
+	if *command == "pull" {
 		updatedConfigs, err := pull(configs)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 		writeConfigFile(fs, updatedConfigs)
-	} else if command == "push" {
+	} else if *command == "push" {
 		push(configs)
 	}
 }

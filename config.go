@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -11,6 +13,8 @@ type Config struct {
 	Key    string
 	Value  string
 }
+
+var configFilePath = filepath.Join(os.Getenv("HOME"), ".mdefaults")
 
 // readConfigFile reads the configuration file and returns a slice of Config.
 func readConfigFile(fs FileSystem) ([]Config, error) {
@@ -38,10 +42,5 @@ func generateConfigFileContent(configs []Config) string {
 
 func writeConfigFile(fs FileSystem, configs []Config) error {
 	content := generateConfigFileContent(configs)
-	userHome, err := fs.UserHomeDir()
-	if err != nil {
-		return err
-	}
-	configFile := userHome + "/.config" + ".mdefaults"
-	return fs.WriteFile(configFile, content)
+	return fs.WriteFile(configFilePath, content)
 }
