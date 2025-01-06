@@ -54,6 +54,8 @@ type MockDefaultsCommand struct {
 	ReadResult string
 	ReadError  error
 	WriteError error
+	domain     string
+	key        string
 }
 
 func (m *MockDefaultsCommand) Read(ctx context.Context) (string, error) {
@@ -62,4 +64,12 @@ func (m *MockDefaultsCommand) Read(ctx context.Context) (string, error) {
 
 func (m *MockDefaultsCommand) Write(ctx context.Context, value string) error {
 	return m.WriteError
+}
+
+func (m *MockDefaultsCommand) Domain() string {
+	return m.domain
+}
+
+func (m *MockDefaultsCommand) Key() string {
+	return m.key
 }

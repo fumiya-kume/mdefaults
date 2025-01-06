@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 )
 
@@ -26,20 +27,16 @@ import (
 // }
 
 func TestPull_ReadError(t *testing.T) {
-	mockFS := &MockFileSystem{
-		homeDir:           "/mock/home",
-		configFileContent: "com.apple.dock autohide\n",
+
+	defaults := []DefaultsCommand{
+		&MockDefaultsCommand{domain: "com.apple.dock", key: "autohide", ReadError: errors.New("read error")},
 	}
 
-	configs := []Config{
-		{Domain: "com.apple.dock", Key: "autohide"},
+	updatedConfigs, err := pullImpl(defaults)
+	if err == nil {
+		t.Errorf("Expected error, got nil")
 	}
-
-	mockDefaults := &MockDefaultsCommand{ReadError: errors.New("read error")}
-
-	pull(mockFS, configs, mockDefaults)
-
-	if configs[0].Value != "" {
-		t.Errorf("Expected value '', got %s", configs[0].Value)
+	if len(updatedConfigs) != 0 {
+		t.Errorf("Expected 0 configs, got %d", len(updatedConfigs))
 	}
 }

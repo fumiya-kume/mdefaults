@@ -10,12 +10,22 @@ import (
 type DefaultsCommand interface {
 	Read(ctx context.Context) (string, error)
 	Write(ctx context.Context, value string) error
+	Domain() string
+	Key() string
 }
 
 // DefaultsCommandImpl is an implementation of the DefaultsCommand interface.
 type DefaultsCommandImpl struct {
 	domain string
 	key    string
+}
+
+func (d *DefaultsCommandImpl) Domain() string {
+	return d.domain
+}
+
+func (d *DefaultsCommandImpl) Key() string {
+	return d.key
 }
 
 // Read executes a command to read a default setting.
