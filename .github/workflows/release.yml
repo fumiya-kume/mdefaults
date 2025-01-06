@@ -52,7 +52,7 @@ jobs:
           go build -ldflags="-s -w -X main.revision=${CURRENT_REVISION}" -o ${BIN} .
           zip -r mdefaults-${{ matrix.goos}}-${{ matrix.goarch}}-${VERSION}.zip ${BIN}
       - name: Archive artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: mdefaults-${{ matrix.goos }}-${{ matrix.goarch }}-${{ github.ref_name }}
           path: mdefaults-${{ matrix.goos }}-*.zip
