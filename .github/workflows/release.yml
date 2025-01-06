@@ -50,8 +50,8 @@ jobs:
           VERSION=$(git describe --tags --abbrev=0)
           CURRENT_REVISION=${{ github.sha }}
           BIN=mdefaults
-          go build -ldflags="-s -w -X main.revision={CURRENT_REVISION}" -o {BIN} .
-          zip -r mdefaults-${{ matrix.goos}}-${{ matrix.goarch}}-${{ matrix.os }}-{VERSION}.zip {BIN}
+          go build -ldflags="-s -w -X main.revision={CURRENT_REVISION}" -o mdefaults .
+          zip -r mdefaults-${{ matrix.goos}}-${{ matrix.goarch}}-${{ matrix.os }}-{VERSION}.zip mdefaults
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -65,6 +65,8 @@ jobs:
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v3
+        with:
+          name: mdefaults-*
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
