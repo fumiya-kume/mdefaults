@@ -3,6 +3,10 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_run:
+    workflows:
+      - version_up
+    types: [completed]
 
 jobs:
   build:
