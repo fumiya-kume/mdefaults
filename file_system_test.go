@@ -17,11 +17,11 @@ type MockFileSystem struct {
 	writeFileContent  string
 }
 
-func (m MockFileSystem) UserHomeDir() (string, error) {
+func (m *MockFileSystem) UserHomeDir() (string, error) {
 	return m.homeDir, nil
 }
 
-func (m MockFileSystem) Stat(name string) (os.FileInfo, error) {
+func (m *MockFileSystem) Stat(name string) (os.FileInfo, error) {
 	if m.statError != nil {
 		return nil, m.statError
 	}
@@ -31,18 +31,18 @@ func (m MockFileSystem) Stat(name string) (os.FileInfo, error) {
 	return nil, nil
 }
 
-func (m MockFileSystem) Create(name string) (*os.File, error) {
+func (m *MockFileSystem) Create(name string) (*os.File, error) {
 	return nil, m.createErr
 }
 
-func (m MockFileSystem) ReadFile(name string) (string, error) {
+func (m *MockFileSystem) ReadFile(name string) (string, error) {
 	if m.statError != nil {
 		return "", m.statError
 	}
 	return m.configFileContent, nil
 }
 
-func (m MockFileSystem) WriteFile(name string, content string) error {
+func (m *MockFileSystem) WriteFile(name string, content string) error {
 	m.writeFileContent = content
 	return m.writeFileErr
 }
@@ -61,7 +61,7 @@ func TestSetupConfigFile_CreatesFileIfNotExist(t *testing.T) {
 }
 
 func TestSetupConfigFile_DoesNotCreateFileIfExists(t *testing.T) {
-	fs := MockFileSystem{
+	fs := &MockFileSystem{
 		homeDir:   "/mock/home",
 		statError: nil,
 		createErr: nil,
@@ -74,7 +74,7 @@ func TestSetupConfigFile_DoesNotCreateFileIfExists(t *testing.T) {
 }
 
 func TestSetupConfigFile_HandleUserHomeDirError(t *testing.T) {
-	fs := MockFileSystem{
+	fs := &MockFileSystem{
 		homeDir:   "",
 		statError: nil,
 		createErr: nil,
@@ -88,7 +88,7 @@ func TestSetupConfigFile_HandleUserHomeDirError(t *testing.T) {
 
 func TestReadConfigFileString_Success(t *testing.T) {
 	expectedContent := "com.apple.dock\nautohide\n"
-	fs := MockFileSystem{homeDir: "/mock/home", configFileContent: expectedContent}
+	fs := &MockFileSystem{homeDir: "/mock/home", configFileContent: expectedContent}
 
 	content, err := readConfigFileString(fs)
 	if err != nil {
@@ -101,7 +101,7 @@ func TestReadConfigFileString_Success(t *testing.T) {
 }
 
 func TestReadConfigFileString_Error(t *testing.T) {
-	fs := MockFileSystem{homeDir: "/mock/home", configFileContent: "", statError: errors.New("read error")}
+	fs := &MockFileSystem{homeDir: "/mock/home", configFileContent: "", statError: errors.New("read error")}
 
 	_, err := readConfigFileString(fs)
 	if err == nil {
