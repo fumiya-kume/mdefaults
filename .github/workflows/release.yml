@@ -50,8 +50,8 @@ jobs:
           CURRENT_REVISION=${{ github.sha }}
           VERSION=${{ github.ref_name }}
           BIN=mdefaults
-          go build -ldflags="-s -w -X main.revision=${CURRENT_REVISION}" -o $(BIN) .
-          zip -r mdefaults-${{ matrix.goos}}-${{ matrix.goarch}}-${VERSION}.zip $(BIN)
+          go build -ldflags="-s -w -X main.revision=${CURRENT_REVISION}" -o ${BIN} .
+          zip -r mdefaults-${{ matrix.goos}}-${{ matrix.goarch}}-${VERSION}.zip ${BIN}
       - name: Archive artifacts
         uses: actions/upload-artifact@v3
         with:
