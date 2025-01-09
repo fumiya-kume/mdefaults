@@ -1,3 +1,4 @@
+version: 2
 project_name: mdefaults
 builds:
   - id: mdefaults
@@ -20,6 +21,10 @@ release:
   github:
     owner: fumiya-kume
     name: mdefaults
-    draft: true 
+  draft: true 
 brews:
-  - tap: fumiya-kume/homebrew-mdefaults 
+  - repository: 
+    # owner: fumiya-kume
+    name: homebrew-mdefaults
+    # taps:
+    #   - fumiya-kume/homebrew-mdefaults
