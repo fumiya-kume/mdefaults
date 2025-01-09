@@ -86,7 +86,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: mdefaults-${{ matrix.arch }}-${{ needs.generate_new_version.outputs.new_version }}
-          path: mdefaults-*
+          path: mdefaults-*.zip
   release:
     needs: [build, create_tag, generate_new_version]
     runs-on: ubuntu-latest
