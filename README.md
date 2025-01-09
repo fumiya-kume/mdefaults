@@ -6,11 +6,18 @@ mdefaults is an tool for Configuration as Code (CaC) for macOS.
 
 ### Getting started
 
-#### get the source code and execute it
+#### Install 
 
+at terminal
 ```
-go install github.com/fumiya-kume/mdefaults
-mdefaults pull
+brew tap fumiya-kume/mdefaults
+brew install mdefaults
+```
+
+at `.Brewfile`
+```
+tap "fumiya-kume/mdefaults"
+brew "mdefaults"
 ```
 
 #### Create a config file (or tool will create empty configuration file)
