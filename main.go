@@ -9,11 +9,7 @@ import (
 
 func run() int {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: mdefaults [command]")
-		fmt.Println("Commands:")
-		fmt.Println("  pull    - Retrieve and update configuration values.")
-		fmt.Println("  push    - Write configuration values.")
-		fmt.Println("Hey, let's call with pull or push.")
+		printUsage()
 		return 0
 	}
 
@@ -25,25 +21,48 @@ func run() int {
 	if err != nil {
 		fmt.Println(err)
 	}
-	for i := 0; i < len(configs); i++ {
-		fmt.Printf("- %s %s\n", configs[i].Domain, configs[i].Key)
-	}
+	printConfigs(configs)
 
 	switch command {
 	case "pull":
-		updatedConfigs, err := pull(configs)
-		if err != nil {
-			log.Fatal(err)
-		}
-		writeConfigFile(fs, updatedConfigs)
-		return 0
+		return handlePull(configs, fs)
 	case "push":
-		push(configs)
-		return 0
+		return handlePush(configs)
 	default:
-		log.Fatal("Invalid command")
+		log.Println("Error:", err)
+		return 1
 	}
+
+	log.Println("Invalid command")
 	return 1
+}
+
+func printUsage() {
+	fmt.Println("Usage: mdefaults [command]")
+	fmt.Println("Commands:")
+	fmt.Println("  pull    - Retrieve and update configuration values.")
+	fmt.Println("  push    - Write configuration values.")
+	fmt.Println("Hey, let's call with pull or push.")
+}
+
+func printConfigs(configs []Config) {
+	for i := 0; i < len(configs); i++ {
+		fmt.Printf("- %s %s\n", configs[i].Domain, configs[i].Key)
+	}
+}
+
+func handlePull(configs []Config, fs *fileSystem) int {
+	updatedConfigs, err := pull(configs)
+	if err != nil {
+		log.Fatal(err)
+	}
+	writeConfigFile(fs, updatedConfigs)
+	return 0
+}
+
+func handlePush(configs []Config) int {
+	push(configs)
+	return 0
 }
 
 func main() {
