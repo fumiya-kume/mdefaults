@@ -21,6 +21,15 @@ func main() {
 		fmt.Printf("- %s %s\n", configs[i].Domain, configs[i].Key)
 	}
 
+	if command == "" {
+		fmt.Println("Usage: mdefaults [command]")
+		fmt.Println("Commands:")
+		fmt.Println("  pull    - Retrieve and update configuration values.")
+		fmt.Println("  push    - Write configuration values.")
+		fmt.Println("Hey, let's call with pull or push.")
+		os.Exit(0)
+	}
+
 	switch command {
 	case "pull":
 		updatedConfigs, err := pull(configs)
