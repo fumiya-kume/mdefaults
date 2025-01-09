@@ -92,14 +92,18 @@ jobs:
   release:
     needs: [build, create_tag, generate_new_version]
     runs-on: ubuntu-latest
+    env:
+      new_version: ${{ needs.generate_new_version.outputs.new_version }}
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v3
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          name: ${{ needs.generate_new_version.outputs.new_version }}
+          name: ${{ env.new_version }}
           token: ${{ secrets.GITHUB_TOKEN }}
           draft: true
           generate_release_notes: true
           files: mdefaults-*/*
+          tag_name: ${{ env.new_version }}
+
