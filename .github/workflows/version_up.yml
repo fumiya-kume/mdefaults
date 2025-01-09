@@ -54,11 +54,6 @@ jobs:
     env:
       new_version: ${{ needs.generate_new_version.outputs.new_version }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-tags: true
-          fetch-depth: 0
       - name: Create Tag
         shell: bash
         run: |
