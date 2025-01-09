@@ -84,6 +84,7 @@ jobs:
           GOARCH: ${{ matrix.arch }}
         run: |
           go build -ldflags="-s -w -X main.revision=${CURRENT_REVISION}" -o mdefaults .
+          zip -r mdefaults-${{ matrix.arch }}-${{ needs.generate_new_version.outputs.new_version }}.zip mdefaults
       - name: Archive artifacts
         uses: actions/upload-artifact@v3
         with:
