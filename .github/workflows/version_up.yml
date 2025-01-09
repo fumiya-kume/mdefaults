@@ -64,7 +64,7 @@ jobs:
           git tag -a ${{ env.new_version }} -m "Version ${{ env.new_version }}"
           git push origin ${{ env.new_version }}
   build:
-    needs: [create_tag, generate_new_version]
+    needs: [generate_new_version]
     runs-on: macos-13
     strategy:
       matrix:
