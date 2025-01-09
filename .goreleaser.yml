@@ -2,7 +2,6 @@ version: 2
 project_name: mdefaults
 builds:
   - id: mdefaults
-    main: ./main.go
     goos:
       - darwin
       - linux
