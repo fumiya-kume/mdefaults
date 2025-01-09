@@ -1,0 +1,25 @@
+project_name: mdefaults
+builds:
+  - id: mdefaults
+    main: ./main.go
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - "-s -w"
+archives:
+  - format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - LICENSE
+      - README.md
+release:
+  github:
+    owner: fumiya-kume
+    name: mdefaults
+    draft: true 
+brews:
+  - tap: fumiya-kume/homebrew-mdefaults 
