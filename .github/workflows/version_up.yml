@@ -95,7 +95,6 @@ jobs:
         uses: actions/download-artifact@v3
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
         with:
           name: ${{ needs.generate_new_version.outputs.new_version }}
           token: ${{ secrets.GITHUB_TOKEN }}
