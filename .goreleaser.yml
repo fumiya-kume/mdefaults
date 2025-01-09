@@ -22,8 +22,7 @@ release:
     name: mdefaults
   draft: true 
 brews:
-  - repository: 
-    # owner: fumiya-kume
-    name: homebrew-mdefaults
-    # taps:
-    #   - fumiya-kume/homebrew-mdefaults
+  - name: mdefaults
+    repository: 
+      owner: fumiya-kume
+      name: homebrew-mdefaults
