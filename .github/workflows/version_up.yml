@@ -69,6 +69,8 @@ jobs:
     strategy:
       matrix:
         arch: [arm64, amd64]
+    env:
+      new_version: ${{ needs.generate_new_version.outputs.new_version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -80,12 +82,12 @@ jobs:
         env:
           GOARCH: ${{ matrix.arch }}
         run: |
-          go build -ldflags="-s -w -X main.revision=${CURRENT_REVISION}" -o mdefaults .
-          zip -r mdefaults-${{ matrix.arch }}-${{ needs.generate_new_version.outputs.new_version }}.zip mdefaults
+          go build -ldflags="-s -w -X main.revision=${{ env.new_version }}" -o mdefaults .
+          zip -r mdefaults-${{ matrix.arch }}-${{ env.new_version }}.zip mdefaults
       - name: Archive artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: mdefaults-${{ matrix.arch }}-${{ needs.generate_new_version.outputs.new_version }}
+          name: mdefaults-${{ matrix.arch }}-${{ env.new_version }}
           path: mdefaults-*.zip
   release:
     needs: [build, create_tag, generate_new_version]
