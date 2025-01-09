@@ -54,6 +54,8 @@ jobs:
     env:
       new_version: ${{ needs.generate_new_version.outputs.new_version }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Create Tag
         shell: bash
         run: |
