@@ -26,3 +26,6 @@ brews:
     repository: 
       owner: fumiya-kume
       name: homebrew-mdefaults
+    description: "mdefaults is a tool to manage default values of macOS."
+    homepage: https://github.com/fumiya-kume/mdefaults
+    license: MIT
