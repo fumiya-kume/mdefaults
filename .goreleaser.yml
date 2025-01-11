@@ -27,13 +27,6 @@ brews:
       owner: fumiya-kume
       name: homebrew-mdefaults
       token: "{{ .Env.TAP_GITHUB_TOKEN }}"
-      pull_request:
-        enabled: true
-        draft: false
-        base:
-          owner: fumiya-kume
-          name: homebrew-mdefaults
-          branch: refresh-mdefaults
 
     description: "mdefaults is a tool to manage default values of macOS."
     homepage: https://github.com/fumiya-kume/mdefaults
