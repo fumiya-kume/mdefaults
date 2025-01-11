@@ -2,21 +2,18 @@ package main
 
 import (
 	"bytes"
-	"flag"
 	"fmt"
 	"io"
 	"os"
 	"testing"
+
+	"github.com/alecthomas/kong"
 )
 
 // Mock os.Exit function
 var osExit = os.Exit
 
 // Remove remaining pull-related tests
-
-func resetFlags() {
-	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
-}
 
 func TestMain_NoCommand_ShowsHelp(t *testing.T) {
 	// Save the original os.Exit function and restore it after the test
@@ -42,32 +39,32 @@ func TestMain_NoCommand_ShowsHelp(t *testing.T) {
 }
 
 func TestMain_VersionFlag(t *testing.T) {
-	resetFlags()
-	originalArgs := os.Args
-	defer func() { os.Args = originalArgs }()
+	// Setup
+	os.Args = []string{"mdefaults", "version"}
 
-	os.Args = []string{"cmd", "--version"}
+	// Capture output
 	output := captureOutput(func() {
 		main()
 	})
 
-	if !bytes.Contains([]byte(output), []byte("Version: ")) || !bytes.Contains([]byte(output), []byte("Architecture: ")) {
-		t.Errorf("Expected version and architecture information to be printed, got: %s", output)
+	// Verify
+	if !bytes.Contains([]byte(output), []byte("Version:")) {
+		t.Errorf("Expected version command output, got: %s", output)
 	}
 }
 
 func TestMain_VFlag(t *testing.T) {
-	resetFlags()
-	originalArgs := os.Args
-	defer func() { os.Args = originalArgs }()
+	// Setup
+	os.Args = []string{"mdefaults", "version", "--verbose"}
 
-	os.Args = []string{"cmd", "-v"}
+	// Capture output
 	output := captureOutput(func() {
 		main()
 	})
 
-	if !bytes.Contains([]byte(output), []byte("Version: ")) || !bytes.Contains([]byte(output), []byte("Architecture: ")) {
-		t.Errorf("Expected version and architecture information to be printed, got: %s", output)
+	// Verify
+	if !bytes.Contains([]byte(output), []byte("Architecture:")) {
+		t.Errorf("Expected verbose version output, got: %s", output)
 	}
 }
 
@@ -103,23 +100,58 @@ func TestMain_WIPMessage(t *testing.T) {
 	}
 }
 
+func TestMain_PullCommand(t *testing.T) {
+	// Setup
+	os.Args = []string{"mdefaults", "pull", "config.yaml"}
+
+	// Capture output
+	output := captureOutput(func() {
+		main()
+	})
+
+	// Verify
+	if !bytes.Contains([]byte(output), []byte("Pulling configurations from:")) {
+		t.Errorf("Expected pull command output, got: %s", output)
+	}
+}
+
+func TestMain_PushCommand(t *testing.T) {
+	// Setup
+	os.Args = []string{"mdefaults", "push", "config.yaml"}
+
+	// Capture output
+	output := captureOutput(func() {
+		main()
+	})
+
+	// Verify
+	if !bytes.Contains([]byte(output), []byte("Pushing configurations to:")) {
+		t.Errorf("Expected push command output, got: %s", output)
+	}
+}
+
 // mainWithOSType is a helper function to simulate different OS types
 func mainWithOSType(osType string) {
 	if osType == "linux" || osType == "windows" {
 		fmt.Println("Work In Progress: This tool uses macOS specific commands and may not function correctly on Linux/Windows.")
 	}
-	initFlags()
-	flag.Parse()
 
-	if versionFlag || vFlag {
-		fmt.Printf("Version: %s\n", version)
-		fmt.Printf("Architecture: %s\n", architecture)
-		return
+	// Use kong to parse commands
+	ctx := kong.Parse(&CLI)
+
+	switch ctx.Command() {
+	case "version":
+		fmt.Println("Version:", version)
+		if CLI.Version.Verbose {
+			fmt.Println("Architecture:", architecture)
+		}
+	case "pull <config>":
+		fmt.Println("Pulling configurations from:", CLI.Pull.Config)
+		// Simulate pull logic
+	case "push <config>":
+		fmt.Println("Pushing configurations to:", CLI.Push.Config)
+		// Simulate push logic
 	}
-
-	fmt.Printf("Version: %s\n", version)
-	fmt.Printf("Architecture: %s\n", architecture)
-	osExit(run())
 }
 
 // Helper function to capture output
