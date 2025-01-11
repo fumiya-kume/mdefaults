@@ -26,6 +26,7 @@ brews:
     repository: 
       owner: fumiya-kume
       name: homebrew-mdefaults
+      token: "{{ .Env.MY_GITHUB_TOKEN }}"
       pull_request:
         enabled: true
         draft: false
