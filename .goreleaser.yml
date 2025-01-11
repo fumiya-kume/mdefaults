@@ -9,7 +9,7 @@ builds:
       - amd64
       - arm64
     ldflags:
-      - "-s -w"
+      - "-s -w -X main.version={{ .Version }} -X main.architecture={{ .Arch }}"
 archives:
   - format: tar.gz
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"

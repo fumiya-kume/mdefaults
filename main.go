@@ -7,6 +7,22 @@ import (
 	"os"
 )
 
+var (
+	version      string
+	architecture string
+)
+
+func initFlags() {
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+	flag.BoolVar(&versionFlag, "version", false, "Print version information")
+	flag.BoolVar(&vFlag, "v", false, "Print version information")
+}
+
+var (
+	versionFlag bool
+	vFlag       bool
+)
+
 func run() int {
 	if len(os.Args) < 2 {
 		printUsage()
@@ -66,5 +82,16 @@ func handlePush(configs []Config) int {
 }
 
 func main() {
+	initFlags()
+	flag.Parse()
+
+	if versionFlag || vFlag {
+		fmt.Printf("Version: %s\n", version)
+		fmt.Printf("Architecture: %s\n", architecture)
+		return
+	}
+
+	fmt.Printf("Version: %s\n", version)
+	fmt.Printf("Architecture: %s\n", architecture)
 	os.Exit(run())
 }

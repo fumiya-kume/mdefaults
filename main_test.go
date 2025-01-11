@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"flag"
 	"io"
 	"os"
 	"testing"
@@ -11,6 +12,10 @@ import (
 var osExit = os.Exit
 
 // Remove remaining pull-related tests
+
+func resetFlags() {
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+}
 
 func TestMain_NoCommand_ShowsHelp(t *testing.T) {
 	// Save the original os.Exit function and restore it after the test
@@ -40,9 +45,40 @@ func TestMain_NoCommand_ShowsHelp(t *testing.T) {
 	}
 }
 
+func TestMain_VersionFlag(t *testing.T) {
+	resetFlags()
+	originalArgs := os.Args
+	defer func() { os.Args = originalArgs }()
+
+	os.Args = []string{"cmd", "--version"}
+	output := captureOutput(func() {
+		main()
+	})
+
+	if !bytes.Contains([]byte(output), []byte("Version: ")) || !bytes.Contains([]byte(output), []byte("Architecture: ")) {
+		t.Errorf("Expected version and architecture information to be printed, got: %s", output)
+	}
+}
+
+func TestMain_VFlag(t *testing.T) {
+	resetFlags()
+	originalArgs := os.Args
+	defer func() { os.Args = originalArgs }()
+
+	os.Args = []string{"cmd", "-v"}
+	output := captureOutput(func() {
+		main()
+	})
+
+	if !bytes.Contains([]byte(output), []byte("Version: ")) || !bytes.Contains([]byte(output), []byte("Architecture: ")) {
+		t.Errorf("Expected version and architecture information to be printed, got: %s", output)
+	}
+}
+
 // Helper function to capture output
 func captureOutput(f func()) string {
 	r, w, _ := os.Pipe()
+	originalStdout := os.Stdout
 	os.Stdout = w
 
 	f()
@@ -50,7 +86,7 @@ func captureOutput(f func()) string {
 	w.Close()
 	var buf bytes.Buffer
 	io.Copy(&buf, r)
-	os.Stdout = os.Stdout
+	os.Stdout = originalStdout
 
 	return buf.String()
 }
