@@ -33,7 +33,7 @@ brews:
         base:
           owner: fumiya-kume
           name: homebrew-mdefaults
-          branch: master
+          branch: refresh-mdefaults
 
     description: "mdefaults is a tool to manage default values of macOS."
     homepage: https://github.com/fumiya-kume/mdefaults
