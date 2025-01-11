@@ -6,6 +6,8 @@ For Release, you will use the goreleaser tool.
 For testing, you will use the Go language.
 For writing documentation, you will use the Markdown language.
 
+You will follow the Development flow to execute the instructions.
+
 # Development flow
 ## Analyze operation & planning
 - Summarize the important tasks
