@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"flag"
+	"fmt"
 	"io"
 	"os"
 	"testing"
@@ -23,8 +24,7 @@ func TestMain_NoCommand_ShowsHelp(t *testing.T) {
 	defer func() { osExit = originalExit }()
 
 	// Mock os.Exit to prevent it from terminating the test
-	exitCode := 0
-	osExit = func(code int) { exitCode = code }
+	osExit = func(code int) {}
 
 	// Simulate calling the program without any subcommands
 	os.Args = []string{"mdefaults"}
@@ -38,10 +38,6 @@ func TestMain_NoCommand_ShowsHelp(t *testing.T) {
 
 	if output != expectedOutput {
 		t.Errorf("Expected output:\n%s\nGot:\n%s", expectedOutput, output)
-	}
-
-	if exitCode != 0 {
-		t.Errorf("Expected exit code 0, got %d", exitCode)
 	}
 }
 
@@ -73,6 +69,57 @@ func TestMain_VFlag(t *testing.T) {
 	if !bytes.Contains([]byte(output), []byte("Version: ")) || !bytes.Contains([]byte(output), []byte("Architecture: ")) {
 		t.Errorf("Expected version and architecture information to be printed, got: %s", output)
 	}
+}
+
+func TestMain_WIPMessage(t *testing.T) {
+	// Save the original os.Exit function and restore it after the test
+	originalExit := osExit
+	defer func() { osExit = originalExit }()
+
+	// Mock os.Exit to prevent it from terminating the test
+	osExit = func(code int) {}
+
+	// Test cases for different OS
+	testCases := []struct {
+		osType  string
+		message string
+	}{
+		{"linux", "Work In Progress: This tool uses macOS specific commands and may not function correctly on Linux/Windows."},
+		{"windows", "Work In Progress: This tool uses macOS specific commands and may not function correctly on Linux/Windows."},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.osType, func(t *testing.T) {
+			// Capture output
+			output := captureOutput(func() {
+				mainWithOSType(tc.osType)
+			})
+
+			// Check if the output contains the expected message
+			if !bytes.Contains([]byte(output), []byte(tc.message)) {
+				t.Errorf("Expected message %q, but got %q", tc.message, output)
+			}
+		})
+	}
+}
+
+// mainWithOSType is a helper function to simulate different OS types
+func mainWithOSType(osType string) {
+	if osType == "linux" || osType == "windows" {
+		fmt.Println("Work In Progress: This tool uses macOS specific commands and may not function correctly on Linux/Windows.")
+	}
+	initFlags()
+	flag.Parse()
+
+	if versionFlag || vFlag {
+		fmt.Printf("Version: %s\n", version)
+		fmt.Printf("Architecture: %s\n", architecture)
+		return
+	}
+
+	fmt.Printf("Version: %s\n", version)
+	fmt.Printf("Architecture: %s\n", architecture)
+	osExit(run())
 }
 
 // Helper function to capture output

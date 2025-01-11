@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"runtime"
 )
 
 var (
@@ -82,6 +83,10 @@ func handlePush(configs []Config) int {
 }
 
 func main() {
+	osType := runtime.GOOS
+	if osType == "linux" || osType == "windows" {
+		fmt.Println("Work In Progress: This tool uses macOS specific commands and may not function correctly on Linux/Windows.")
+	}
 	initFlags()
 	flag.Parse()
 
