@@ -42,7 +42,11 @@ func (f *fileSystem) ReadFile(name string) (string, error) {
 // createConfigFileIfMissing checks for the existence of the config file and creates it if it doesn't exist
 func createConfigFileIfMissing(fs FileSystem) error {
 	if _, err := fs.Stat(configFilePath); os.IsNotExist(err) {
-		fs.Create(configFilePath)
+		file, err := fs.Create(configFilePath)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
 	}
 	return nil
 }

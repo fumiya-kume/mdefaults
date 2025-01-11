@@ -33,7 +33,9 @@ func run() int {
 	command := os.Args[1]
 	flag.Parse()
 	fs := &fileSystem{}
-	createConfigFileIfMissing(fs)
+	if err := createConfigFileIfMissing(fs); err != nil {
+		log.Printf("Failed to create config file: %v", err)
+	}
 	configs, err := readConfigFile(fs)
 	if err != nil {
 		fmt.Println(err)
@@ -49,9 +51,6 @@ func run() int {
 		log.Println("Error:", err)
 		return 1
 	}
-
-	log.Println("Invalid command")
-	return 1
 }
 
 func printUsage() {
@@ -73,7 +72,9 @@ func handlePull(configs []Config, fs *fileSystem) int {
 	if err != nil {
 		log.Fatal(err)
 	}
-	writeConfigFile(fs, updatedConfigs)
+	if err := writeConfigFile(fs, updatedConfigs); err != nil {
+		log.Printf("Failed to write config file: %v", err)
+	}
 	return 0
 }
 

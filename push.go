@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 )
 
 func push(configs []Config) {
@@ -10,6 +11,8 @@ func push(configs []Config) {
 			domain: config.Domain,
 			key:    config.Key,
 		}
-		defaults.Write(context.Background(), config.Value)
+		if err := defaults.Write(context.Background(), config.Value); err != nil {
+			log.Printf("Failed to write defaults for %s: %v", config.Key, err)
+		}
 	}
 }
