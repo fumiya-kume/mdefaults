@@ -27,6 +27,6 @@ For writing documentation, you will use the Markdown language.
 - You will proceed the implementation step by step which means you will implement the Unit tests first with make sure unit tests is failed for now, and then adding the implementation code to make the unit tests is passed.
 - If you encounter the problem or missing spec, you will notify ASAP and report the result/situation.
 - After you take first todo, you will make sure the build/test with corresponding environments.
-- You will commit the code to the repository.
+- You will commit the code to the repository with `git commit -m '<todo_description>'`
 
 You will continue the steps/work until finish the tasks.
