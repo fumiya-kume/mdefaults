@@ -1,40 +1,52 @@
-'Sync': Stop and compose yourself check that you have updated @project.md and @progress.md if appropriate, make sure you know where we are, and then let's move to the next step. Do not code yet.
+# .cursorrules
 
-You are a Senior Software Engineer who uses the Go programming language.
-You will try to make a clear the steps, and you will follow the steps.
+# Development Steps for CLI Application in Go
 
-- Use Go modules for dependency management.
-- Employ `go test` for running unit tests.
-- Utilize `gofmt` and `golint` for code formatting and linting.
-- Leverage `go build` for compiling the code.
-- Use `goreleaser` for releasing Go binaries.
-- Integrate with CI/CD pipelines using GitHub Actions.
-- Consider using `mockgen` for generating mocks in tests.
+## 1. Overall Design
+- Define the purpose and scope of the CLI application.
+- Identify the target audience and their needs.
+- Outline the main features and functionalities.
+- Create a high-level architecture diagram.
+- **Improve Specifications/Features:**
+  - Enhance the design from a UX and beauty perspective.
+  - Consider user feedback and usability testing to refine features.
+  - Ensure that the CLI is intuitive and visually appealing.
+- **Write a Design Document** in Markdown format at `design-doc/{feature name}` for any new or updated features.
+- **Create a To-Do List** for tasks in `todo.txt` to track progress and responsibilities.
 
-You will follow the Development flow to execute the instructions.
+## 2. Detailed Design
+- Break down features into individual commands and subcommands.
+- Define the input and output for each command.
+- Specify the data structures and types to be used.
+- Plan error handling and logging mechanisms.
+- Create a flowchart for command execution paths.
+- **TDD Steps:**
+  - Write a test for each command before implementation.
+  - Define expected behavior and edge cases in the tests.
+  - Implement the command to pass the tests.
+  - Refactor the code as necessary while ensuring all tests pass.
+  - Update the `todo.txt` with TDD tasks for each command and feature.
 
-# Development flow
-## Analyze operation & planning
-- Summarize the important tasks
-- Ideation which not limited to the tasks/instructions
-- List up the steps for the execute the tasks
-- Decide the optimized order of tasks
-- Think about the possible problems, and write the solution
-- List up the tools, resources for execute the tasks
-- Suggest the better spec/requirements if you feel that you have better idea.
+## 3. Implementation
+- Set up the Go project structure (e.g., using `go mod`).
+- **Step-by-Step Implementation:**
+  - For each task in `todo.txt`:
+    - Implement the unit tests first.
+    - Write the implementation code for the feature.
+    - After each action, verify that the results match expectations.
+    - Continue this process until all tasks in `todo.txt` are completed.
+- Implement commands using the `cobra` library.
+- Ensure adherence to Go's coding standards and best practices.
+- Use version control (e.g., Git) for tracking changes.
 
-## Detail Design
-- After the Analyze operation & planning, you will design the detail of the tasks.
-- You will write the Design docs under the `designdoc/` directory if necessary you think.
-- Make the Detail design of the tasks at code level or method or folder structure or etc.
-- You will write the each to-do list at the `todo.txt` file, might you will create the file if missing. very-detailed level is fine.
-
-## Implementation
-- You will implement with the Test Driven Development style. so if the `todo.txt` is not enough for the TDD, then you can update it.
-- You will proceed the implementation step by step which means you will implement the Unit tests first with make sure unit tests is failed for now, and then adding the implementation code to make the unit tests is passed.
-- If you encounter the problem or missing spec, you will notify ASAP and report the result/situation.
-- After you take first todo, you will make sure the build/test with corresponding environments.
-- You will commit the code to the repository with `git commit -m '<todo_description>'`
-
-You will continue the steps/work until finish the tasks.
-
+## 4. Check
+- Perform code reviews with peers to ensure quality. ✅
+- Run all tests and check for coverage. 📊
+- Validate the CLI against the initial requirements. ✔️
+- **Output Results:**
+  - Summarize the results of plans, tasks, and outcomes with emojis for clarity and beauty. 🎉
+  - Example:
+    - **Tasks Completed:** 5/5 ✅
+    - **Tests Passed:** 20/20 🎉
+    - **Bugs Found:** 0 🐞
+- Gather feedback from users and iterate on the design as needed. 🗣️
