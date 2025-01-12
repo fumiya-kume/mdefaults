@@ -79,3 +79,13 @@ go install github.com/fumiya-kume/mdefaults
 
 [GPL-3.0](LICENSE)
 
+### config
+
+Print the configuration file content.
+
+```
+mdefaults config
+```
+
+This command reads the configuration file located in `~/.mdefaults` and prints its contents to the console.
+

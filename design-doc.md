@@ -18,6 +18,10 @@ The application is structured around a command-line interface that processes com
 - Writes configuration values.
 - Utilizes the `push` function to send configuration data.
 
+### Config
+- Prints the configuration file content.
+- Utilizes the `config` command to read and display the contents of the configuration file located in `~/.mdefaults`.
+
 ## Configuration Management
 - The application checks for the existence of a configuration file and creates one if missing.
 - Configurations are read from and written to a file using the file system component.

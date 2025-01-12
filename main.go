@@ -85,7 +85,7 @@ func printUsage() {
 
 func printConfigs(configs []Config) {
 	for i := 0; i < len(configs); i++ {
-		fmt.Printf("- %s %s\n", configs[i].Domain, configs[i].Key)
+		fmt.Printf("- %s %s %s\n", configs[i].Domain, configs[i].Key, configs[i].Value)
 	}
 }
 
