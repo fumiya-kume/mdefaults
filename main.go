@@ -19,12 +19,23 @@ func initFlags() {
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	flag.BoolVar(&versionFlag, "version", false, "Print version information")
 	flag.BoolVar(&vFlag, "v", false, "Print version information")
+	flag.BoolVar(&verboseFlag, "verbose", false, "Enable verbose logging")
 }
 
 var (
 	versionFlag bool
 	vFlag       bool
+	verboseFlag bool
 )
+
+func setupLogging() {
+	logFile, err := os.OpenFile("mdefaults.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		log.Fatalf("Failed to open log file: %v", err)
+	}
+	log.SetOutput(logFile)
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+}
 
 func run() int {
 	if len(os.Args) < 2 {
@@ -44,13 +55,22 @@ func run() int {
 	}
 	printConfigs(configs)
 
+	if verboseFlag {
+		log.SetFlags(log.LstdFlags | log.Lshortfile)
+		log.Println("Verbose mode enabled")
+	}
+
 	switch command {
 	case "pull":
 		return handlePull(configs, fs)
 	case "push":
 		return handlePush(configs)
+	case "debug":
+		log.Println("Debug command executed")
+		// Add more debug information here
+		return 0
 	default:
-		log.Println("Error:", err)
+		log.Println("Error: Unknown command")
 		return 1
 	}
 }
@@ -101,6 +121,7 @@ func handlePush(configs []Config) int {
 }
 
 func main() {
+	setupLogging()
 	osType := runtime.GOOS
 	if osType == "linux" || osType == "windows" {
 		fmt.Println("Work In Progress: This tool uses macOS specific commands and may not function correctly on Linux/Windows.")

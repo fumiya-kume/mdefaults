@@ -47,6 +47,18 @@ Apply the configuration settings from the file to macOS.
 mdefaults push
 ```
 
+### Verbose Mode
+
+Enable verbose logging to get detailed information about the application's operations. This can be useful for debugging and understanding the application's behavior.
+
+To enable verbose mode, use the `--verbose` flag with any command:
+
+```
+mdefaults --verbose pull
+```
+
+This will provide additional log output in the console and write detailed logs to the `mdefaults.log` file.
+
 ### Troubleshooting
 
 If you encounter any issues, please check the following:

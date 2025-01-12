@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"testing"
 )
@@ -18,7 +19,34 @@ func resetFlags() {
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 }
 
+func mockLogs() (*bytes.Buffer, func()) {
+	var buf bytes.Buffer
+	originalLogOutput := log.Writer()
+	log.SetOutput(&buf)
+	return &buf, func() {
+		log.SetOutput(originalLogOutput)
+	}
+}
+
+func TestMain(m *testing.M) {
+	// Initialize testing flags
+	testing.Init()
+
+	// Save the original os.Args and restore it after the test
+	originalArgs := os.Args
+	defer func() { os.Args = originalArgs }()
+
+	// Remove test flags from os.Args
+	os.Args = []string{originalArgs[0]}
+
+	// Run the tests
+	os.Exit(m.Run())
+}
+
 func TestMain_NoCommand_ShowsHelp(t *testing.T) {
+	logBuffer, restoreLogs := mockLogs()
+	defer restoreLogs()
+
 	// Save the original os.Exit function and restore it after the test
 	originalExit := osExit
 	defer func() { osExit = originalExit }()
@@ -39,6 +67,8 @@ func TestMain_NoCommand_ShowsHelp(t *testing.T) {
 	if output != expectedOutput {
 		t.Errorf("Expected output:\n%s\nGot:\n%s", expectedOutput, output)
 	}
+
+	_ = logBuffer // Use logBuffer if needed for assertions
 }
 
 func TestMain_VersionFlag(t *testing.T) {
@@ -101,6 +131,46 @@ func TestMain_WIPMessage(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestMain_VerboseFlag(t *testing.T) {
+	logBuffer, restoreLogs := mockLogs()
+	defer restoreLogs()
+
+	resetFlags()
+	originalArgs := os.Args
+	defer func() { os.Args = originalArgs }()
+
+	os.Args = []string{"cmd", "--verbose", "pull"}
+	output := captureOutput(func() {
+		run()
+	})
+
+	if !bytes.Contains([]byte(output), []byte("Verbose mode enabled")) {
+		t.Errorf("Expected verbose mode to be enabled, got: %s", output)
+	}
+
+	_ = logBuffer // Use logBuffer if needed for assertions
+}
+
+func TestMain_DebugCommand(t *testing.T) {
+	logBuffer, restoreLogs := mockLogs()
+	defer restoreLogs()
+
+	resetFlags()
+	originalArgs := os.Args
+	defer func() { os.Args = originalArgs }()
+
+	os.Args = []string{"cmd", "debug"}
+	output := captureOutput(func() {
+		run()
+	})
+
+	if !bytes.Contains([]byte(output), []byte("Debug command executed")) {
+		t.Errorf("Expected debug command to be executed, got: %s", output)
+	}
+
+	_ = logBuffer // Use logBuffer if needed for assertions
 }
 
 // mainWithOSType is a helper function to simulate different OS types
