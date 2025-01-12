@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"strings"
 )
 
 func pull(configs []Config) ([]Config, error) {
@@ -22,6 +23,7 @@ func pullImpl(defaults []DefaultsCommand) ([]Config, error) {
 		if err != nil {
 			continue
 		}
+		value = strings.ReplaceAll(value, "\n", "")
 		updatedConfigs = append(updatedConfigs, Config{
 			Domain: defaults[i].Domain(),
 			Key:    defaults[i].Key(),

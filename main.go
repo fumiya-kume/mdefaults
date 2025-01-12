@@ -53,7 +53,6 @@ func run() int {
 	if err != nil {
 		fmt.Println(err)
 	}
-	printConfigs(configs)
 
 	if verboseFlag {
 		log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -62,6 +61,16 @@ func run() int {
 
 	switch command {
 	case "pull":
+		fmt.Println("Current Configuration:")
+		printConfigs(configs)
+		fmt.Println("macOS Configuration:")
+		macOSConfigs, err := pull(configs)
+		if err != nil {
+			printError("Failed to pull configurations")
+			return 1
+		}
+		printConfigs(macOSConfigs)
+
 		color.Yellow("Warning: mdefaults will override your configuration file (~/.mdefaults). Proceed with caution.")
 		fmt.Print("Do you want to continue? (yes/no): ")
 		var response string
@@ -70,8 +79,15 @@ func run() int {
 			fmt.Println("Operation cancelled.")
 			return 0
 		}
-		return handlePull(configs, fs)
+
+		printSuccess("Configurations pulled successfully")
+		if err := writeConfigFile(fs, macOSConfigs); err != nil {
+			log.Printf("Failed to write config file: %v", err)
+			return 1
+		}
+		return 0
 	case "push":
+		printConfigs(configs)
 		return handlePush(configs)
 	case "debug":
 		log.Println("Debug command executed")
@@ -103,19 +119,6 @@ func printError(message string) {
 
 func printSuccess(message string) {
 	color.Green("Success: %s", message)
-}
-
-func handlePull(configs []Config, fs *fileSystem) int {
-	updatedConfigs, err := pull(configs)
-	if err != nil {
-		printError("Failed to pull configurations")
-		return 1
-	}
-	printSuccess("Configurations pulled successfully")
-	if err := writeConfigFile(fs, updatedConfigs); err != nil {
-		log.Printf("Failed to write config file: %v", err)
-	}
-	return 0
 }
 
 func handlePush(configs []Config) int {
