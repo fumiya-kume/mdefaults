@@ -49,6 +49,16 @@ Apply the configuration settings from the file to macOS.
 mdefaults push
 ```
 
+### config
+
+Print the configuration file content.
+
+```
+mdefaults config
+```
+
+This command reads the configuration file located in `~/.mdefaults` and prints its contents to the console.
+
 ### Verbose Mode
 
 Enable verbose logging to get detailed information about the application's operations. This can be useful for debugging and understanding the application's behavior.
@@ -80,14 +90,4 @@ go install github.com/fumiya-kume/mdefaults
 ## License
 
 [GPL-3.0](LICENSE)
-
-### config
-
-Print the configuration file content.
-
-```
-mdefaults config
-```
-
-This command reads the configuration file located in `~/.mdefaults` and prints its contents to the console.
 
