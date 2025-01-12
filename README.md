@@ -2,6 +2,12 @@
 
 mdefaults is a tool for Configuration as Code (CaC) for macOS. It allows you to manage macOS configuration settings through code, making it easier to version control and automate configuration changes.
 
+
+
+https://github.com/user-attachments/assets/a05fe9ff-3574-4c64-baa8-045e19d34b2c
+
+
+
 ## Usage
 
 ### Getting Started
