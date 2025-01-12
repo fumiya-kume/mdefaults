@@ -21,6 +21,7 @@ release:
     owner: fumiya-kume
     name: mdefaults
   draft: false 
+  make_latest: true
 brews:
   - name: mdefaults
     repository: 
