@@ -2,8 +2,6 @@
 
 # Development Steps for CLI Application in Go
 
-When you receive the new task, you should follow the following steps:
-
 ## 1. Overall Design
 - Define the purpose and scope of the CLI application.
 - Identify the target audience and their needs.
@@ -36,6 +34,7 @@ When you receive the new task, you should follow the following steps:
     - Implement the unit tests first.
     - Write the implementation code for the feature.
     - After each action, verify that the results match expectations.
+    - Once a task is completed, change the corresponding `[ ]` in `todo.txt` to `[x]`.
     - Continue this process until all tasks in `todo.txt` are completed.
 - Implement commands using the `cobra` library.
 - Ensure adherence to Go's coding standards and best practices.
