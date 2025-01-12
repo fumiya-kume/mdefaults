@@ -20,7 +20,7 @@ release:
   github:
     owner: fumiya-kume
     name: mdefaults
-  draft: true 
+  draft: false 
 brews:
   - name: mdefaults
     repository: 
