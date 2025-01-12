@@ -2,6 +2,8 @@
 
 # Development Steps for CLI Application in Go
 
+When you receive the new task, you should follow the following steps:
+
 ## 1. Overall Design
 - Define the purpose and scope of the CLI application.
 - Identify the target audience and their needs.
