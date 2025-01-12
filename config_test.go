@@ -7,15 +7,18 @@ import (
 )
 
 func TestReadConfigFile_Success(t *testing.T) {
-	fs := &MockFileSystem{homeDir: "/mock/home", statError: nil, createErr: nil, configFileContent: "com.apple.dock autohide 1\n"}
+	fs := &MockFileSystem{homeDir: "/mock/home", statError: nil, createErr: nil, configFileContent: "com.apple.dock autohide 1\ncom.apple.finder ShowPathbar true\n"}
 
 	configs, err := readConfigFile(fs)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
+	value1 := "1"
+	value2 := "true"
 	expectedConfigs := []Config{
-		{Domain: "com.apple.dock", Key: "autohide", Value: "1"},
+		{Domain: "com.apple.dock", Key: "autohide", Value: &value1},
+		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: &value2},
 	}
 
 	if len(configs) != len(expectedConfigs) {
@@ -29,8 +32,8 @@ func TestReadConfigFile_Success(t *testing.T) {
 		if config.Key != expectedConfigs[i].Key {
 			t.Errorf("Expected key %s, got %s", expectedConfigs[i].Key, config.Key)
 		}
-		if config.Value != expectedConfigs[i].Value {
-			t.Errorf("Expected value %s, got %s", expectedConfigs[i].Value, config.Value)
+		if *config.Value != *expectedConfigs[i].Value {
+			t.Errorf("Expected value %s, got %s", *expectedConfigs[i].Value, *config.Value)
 		}
 	}
 }
@@ -49,9 +52,11 @@ func TestReadConfigFile_Error(t *testing.T) {
 }
 
 func TestGenerateConfigFileContent(t *testing.T) {
+	value1 := "1"
+	value2 := "true"
 	configs := []Config{
-		{Domain: "com.apple.dock", Key: "autohide", Value: "1"},
-		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: "true"},
+		{Domain: "com.apple.dock", Key: "autohide", Value: &value1},
+		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: &value2},
 	}
 
 	expectedContent := "com.apple.dock autohide 1\ncom.apple.finder ShowPathbar true\n"
@@ -79,10 +84,12 @@ func TestWriteConfigFile_Success(t *testing.T) {
 		writeFileContent: "",
 		writeFileErr:     nil,
 	}
+	value1 := "1"
+	value2 := "true"
 
 	configs := []Config{
-		{Domain: "com.apple.dock", Key: "autohide", Value: "1"},
-		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: "true"},
+		{Domain: "com.apple.dock", Key: "autohide", Value: &value1},
+		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: &value2},
 	}
 
 	err := writeConfigFile(mockFS, configs)
@@ -102,8 +109,9 @@ func TestWriteConfigFile_Error(t *testing.T) {
 		writeFileErr: errors.New("write error"),
 	}
 
+	value1 := "1"
 	configs := []Config{
-		{Domain: "com.apple.dock", Key: "autohide", Value: "1"},
+		{Domain: "com.apple.dock", Key: "autohide", Value: &value1},
 	}
 
 	err := writeConfigFile(mockFS, configs)

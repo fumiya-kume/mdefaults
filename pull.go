@@ -25,7 +25,7 @@ func pullImpl(defaults []DefaultsCommand) ([]Config, error) {
 		updatedConfigs = append(updatedConfigs, Config{
 			Domain: defaults[i].Domain(),
 			Key:    defaults[i].Key(),
-			Value:  value,
+			Value:  &value,
 		})
 	}
 	return updatedConfigs, nil

@@ -85,16 +85,12 @@ func printUsage() {
 
 func printConfigs(configs []Config) {
 	for i := 0; i < len(configs); i++ {
-		fmt.Printf("- %s %s %s\n", configs[i].Domain, configs[i].Key, configs[i].Value)
+		fmt.Printf("- %s %s %s\n", configs[i].Domain, configs[i].Key, *configs[i].Value)
 	}
 }
 
 func printError(message string) {
 	color.Red("Error: %s", message)
-}
-
-func printWarning(message string) {
-	color.Yellow("Warning: %s", message)
 }
 
 func printSuccess(message string) {
