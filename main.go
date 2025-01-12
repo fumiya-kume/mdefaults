@@ -20,12 +20,14 @@ func initFlags() {
 	flag.BoolVar(&versionFlag, "version", false, "Print version information")
 	flag.BoolVar(&vFlag, "v", false, "Print version information")
 	flag.BoolVar(&verboseFlag, "verbose", false, "Enable verbose logging")
+	flag.BoolVar(&yesFlag, "y", false, "Automatically confirm prompts")
 }
 
 var (
 	versionFlag bool
 	vFlag       bool
 	verboseFlag bool
+	yesFlag     bool
 )
 
 func setupLogging() {
@@ -44,7 +46,10 @@ func run() int {
 	}
 
 	command := os.Args[1]
-	flag.Parse()
+
+	// Parse flags after the command
+	flag.CommandLine.Parse(os.Args[2:])
+
 	fs := &fileSystem{}
 	if err := createConfigFileIfMissing(fs); err != nil {
 		log.Printf("Failed to create config file: %v", err)
@@ -71,16 +76,18 @@ func run() int {
 		}
 		printConfigs(macOSConfigs)
 
-		color.Yellow("Warning: mdefaults will override your configuration file (~/.mdefaults). Proceed with caution.")
-		fmt.Print("Do you want to continue? (yes/no): ")
-		var response string
-		if _, err := fmt.Scanln(&response); err != nil {
-			fmt.Println("Failed to read input, operation cancelled.")
-			return 1
-		}
-		if response != "yes" {
-			fmt.Println("Operation cancelled.")
-			return 0
+		if !yesFlag {
+			color.Yellow("Warning: mdefaults will override your configuration file (~/.mdefaults). Proceed with caution.")
+			fmt.Print("Do you want to continue? (yes/no): ")
+			var response string
+			if _, err := fmt.Scanln(&response); err != nil {
+				fmt.Println("Failed to read input, operation cancelled.")
+				return 1
+			}
+			if response != "yes" {
+				fmt.Println("Operation cancelled.")
+				return 0
+			}
 		}
 
 		printSuccess("Configurations pulled successfully")
