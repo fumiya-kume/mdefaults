@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"runtime"
+
+	"github.com/fatih/color"
 )
 
 var (
@@ -67,11 +69,25 @@ func printConfigs(configs []Config) {
 	}
 }
 
+func printError(message string) {
+	color.Red("Error: %s", message)
+}
+
+func printWarning(message string) {
+	color.Yellow("Warning: %s", message)
+}
+
+func printSuccess(message string) {
+	color.Green("Success: %s", message)
+}
+
 func handlePull(configs []Config, fs *fileSystem) int {
 	updatedConfigs, err := pull(configs)
 	if err != nil {
-		log.Fatal(err)
+		printError("Failed to pull configurations")
+		return 1
 	}
+	printSuccess("Configurations pulled successfully")
 	if err := writeConfigFile(fs, updatedConfigs); err != nil {
 		log.Printf("Failed to write config file: %v", err)
 	}
@@ -80,6 +96,7 @@ func handlePull(configs []Config, fs *fileSystem) int {
 
 func handlePush(configs []Config) int {
 	push(configs)
+	printSuccess("Configurations pushed successfully")
 	return 0
 }
 
