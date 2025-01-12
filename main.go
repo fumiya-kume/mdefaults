@@ -74,7 +74,10 @@ func run() int {
 		color.Yellow("Warning: mdefaults will override your configuration file (~/.mdefaults). Proceed with caution.")
 		fmt.Print("Do you want to continue? (yes/no): ")
 		var response string
-		fmt.Scanln(&response)
+		if _, err := fmt.Scanln(&response); err != nil {
+			fmt.Println("Failed to read input, operation cancelled.")
+			return 1
+		}
 		if response != "yes" {
 			fmt.Println("Operation cancelled.")
 			return 0
