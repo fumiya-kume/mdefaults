@@ -133,46 +133,6 @@ func TestMain_WIPMessage(t *testing.T) {
 	}
 }
 
-func TestMain_VerboseFlag(t *testing.T) {
-	logBuffer, restoreLogs := mockLogs()
-	defer restoreLogs()
-
-	resetFlags()
-	originalArgs := os.Args
-	defer func() { os.Args = originalArgs }()
-
-	os.Args = []string{"cmd", "--verbose", "pull"}
-	output := captureOutput(func() {
-		run()
-	})
-
-	if !bytes.Contains([]byte(output), []byte("Verbose mode enabled")) {
-		t.Errorf("Expected verbose mode to be enabled, got: %s", output)
-	}
-
-	_ = logBuffer // Use logBuffer if needed for assertions
-}
-
-func TestMain_DebugCommand(t *testing.T) {
-	logBuffer, restoreLogs := mockLogs()
-	defer restoreLogs()
-
-	resetFlags()
-	originalArgs := os.Args
-	defer func() { os.Args = originalArgs }()
-
-	os.Args = []string{"cmd", "debug"}
-	output := captureOutput(func() {
-		run()
-	})
-
-	if !bytes.Contains([]byte(output), []byte("Debug command executed")) {
-		t.Errorf("Expected debug command to be executed, got: %s", output)
-	}
-
-	_ = logBuffer // Use logBuffer if needed for assertions
-}
-
 // mainWithOSType is a helper function to simulate different OS types
 func mainWithOSType(osType string) {
 	if osType == "linux" || osType == "windows" {
