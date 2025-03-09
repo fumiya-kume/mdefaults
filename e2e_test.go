@@ -94,7 +94,7 @@ com.apple.WindowManager LastHeartbeatDateString.daily`
 	// Test the push command
 	t.Run("PushCommand", func(t *testing.T) {
 		// First, modify the config to set predictable test values
-		testValues := `com.apple.homeenergyd Migration24 true
+		testValues := `com.apple.homeenergyd Migration24 1
 com.apple.iCal CALPrefLastTruthFileMigrationVersion 2
 com.apple.WindowManager LastHeartbeatDateString.daily "hogehoge"`
 
@@ -116,7 +116,7 @@ com.apple.WindowManager LastHeartbeatDateString.daily "hogehoge"`
 			expectedValue string
 			expectedType  string
 		}{
-			{"com.apple.homeenergyd", "Migration24", "true", "boolean"},
+			{"com.apple.homeenergyd", "Migration24", "1", "boolean"},
 			{"com.apple.iCal", "CALPrefLastTruthFileMigrationVersion", "2", "integer"},
 			{"com.apple.WindowManager", "LastHeartbeatDateString.daily", "hogehoge", "string"},
 		} {
