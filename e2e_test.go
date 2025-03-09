@@ -84,7 +84,7 @@ com.apple.dock version`
 		}
 
 		// Check that our test keys exist in the updated config
-		for _, key := range []string{"location", "type", "tilesize"} {
+		for _, key := range []string{"style", "video", "version"} {
 			if !strings.Contains(updatedStr, key) {
 				t.Errorf("Expected updated config to contain key '%s', but it doesn't", key)
 			}
@@ -116,9 +116,9 @@ com.apple.dock version 1`
 			expectedValue string
 			expectedType  string
 		}{
-			{"com.apple.screencapture", "location", "/tmp/screenshots", "string"},
-			{"com.apple.screencapture", "type", "png", "string"},
-			{"com.apple.dock", "tilesize", "48", "integer"},
+			{"com.apple.screencapture", "style", "selection", "string"},
+			{"com.apple.screencapture", "video", "1", "boolean"},
+			{"com.apple.dock", "version", "1", "integer"},
 		} {
 			// Check value
 			valueCmd := exec.Command("defaults", "read", tc.domain, tc.key)
