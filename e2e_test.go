@@ -96,7 +96,7 @@ com.apple.WindowManager LastHeartbeatDateString.daily`
 		// First, modify the config to set predictable test values
 		testValues := `com.apple.homeenergyd Migration24 true
 com.apple.iCal CALPrefLastTruthFileMigrationVersion 2
-com.apple.WindowManager LastHeartbeatDateString.daily "1"`
+com.apple.WindowManager LastHeartbeatDateString.daily "hogehoge"`
 
 		if err := os.WriteFile(originalConfig, []byte(testValues), 0644); err != nil {
 			t.Fatalf("Failed to write test values: %v", err)
@@ -117,7 +117,7 @@ com.apple.WindowManager LastHeartbeatDateString.daily "1"`
 			expectedType  string
 		}{
 			{"com.apple.homeenergyd", "Migration24", "true", "boolean"},
-			{"com.apple.iCal", "CALPrefLastTruthFileMigrationVersion", "1", "integer"},
+			{"com.apple.iCal", "CALPrefLastTruthFileMigrationVersion", "2", "integer"},
 			{"com.apple.WindowManager", "LastHeartbeatDateString.daily", "hogehoge", "string"},
 		} {
 			// Check value
