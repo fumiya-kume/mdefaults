@@ -84,7 +84,7 @@ com.apple.WindowManager LastHeartbeatDateString.daily`
 		}
 
 		// Check that our test keys exist in the updated config
-		for _, key := range []string{"style", "video", "version"} {
+		for _, key := range []string{"Migration24", "CALPrefLastTruthFileMigrationVersion", "LastHeartbeatDateString"} {
 			if !strings.Contains(updatedStr, key) {
 				t.Errorf("Expected updated config to contain key '%s', but it doesn't", key)
 			}
