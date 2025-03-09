@@ -17,7 +17,11 @@ func push(configs []Config) {
 		}
 
 		// Use the stored type when writing the value, or default to string if not specified
-		valueType := config.Type
+		valueType, err := defaults.ReadType(context.Background())
+		if err != nil {
+			log.Printf("Failed to read type for %s: %v", config.Key, err)
+			continue
+		}
 		if valueType == "" {
 			valueType = "string"
 		}
