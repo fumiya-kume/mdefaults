@@ -115,6 +115,23 @@ If you encounter any issues, please check the following:
 
 Contributions are welcome! Please fork the repository and submit a pull request.
 
+### Development
+
+#### Testing
+The project includes both unit tests and E2E (End-to-End) tests. 
+
+To run only the unit tests:
+```
+go test -short ./...
+```
+
+To run all tests including E2E tests (requires running in CI environment):
+```
+go test ./...
+```
+
+Note: E2E tests are skipped by default when not running in a CI environment to prevent modifying your local macOS settings.
+
 ## Installation
 
 ```
