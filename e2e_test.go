@@ -153,9 +153,9 @@ com.apple.dock version 1`
 			domain string
 			key    string
 		}{
-			{"com.apple.screencapture", "location"},
-			{"com.apple.screencapture", "type"},
-			{"com.apple.dock", "tilesize"},
+			{"com.apple.screencapture", "style"},
+			{"com.apple.screencapture", "video"},
+			{"com.apple.dock", "version"},
 		} {
 			cmd := exec.Command("defaults", "delete", item.domain, item.key)
 			if err := cmd.Run(); err != nil {
