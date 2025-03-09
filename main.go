@@ -20,12 +20,14 @@ func initFlags() {
 	flag.BoolVar(&versionFlag, "version", false, "Print version information")
 	flag.BoolVar(&vFlag, "v", false, "Print version information")
 	flag.BoolVar(&verboseFlag, "verbose", false, "Enable verbose logging")
+	flag.BoolVar(&yesFlag, "y", false, "Skip confirmation prompts")
 }
 
 var (
 	versionFlag bool
 	vFlag       bool
 	verboseFlag bool
+	yesFlag     bool
 )
 
 func setupLogging() {
@@ -44,7 +46,12 @@ func run() int {
 	}
 
 	command := os.Args[1]
-	flag.Parse()
+
+	// Since we're using ExitOnError, Parse won't return an error
+	// It will exit the program if there's a problem
+	// Using _ to explicitly ignore the return value
+	_ = flag.CommandLine.Parse(os.Args[2:])
+
 	fs := &fileSystem{}
 	if err := createConfigFileIfMissing(fs); err != nil {
 		log.Printf("Failed to create config file: %v", err)
@@ -71,16 +78,18 @@ func run() int {
 		}
 		printConfigs(macOSConfigs)
 
-		color.Yellow("Warning: mdefaults will override your configuration file (~/.mdefaults). Proceed with caution.")
-		fmt.Print("Do you want to continue? (yes/no): ")
-		var response string
-		if _, err := fmt.Scanln(&response); err != nil {
-			fmt.Println("Failed to read input, operation cancelled.")
-			return 1
-		}
-		if response != "yes" {
-			fmt.Println("Operation cancelled.")
-			return 0
+		if !yesFlag {
+			color.Yellow("Warning: mdefaults will override your configuration file (~/.mdefaults). Proceed with caution.")
+			fmt.Print("Do you want to continue? (yes/no): ")
+			var response string
+			if _, err := fmt.Scanln(&response); err != nil {
+				fmt.Println("Failed to read input, operation cancelled.")
+				return 1
+			}
+			if response != "yes" {
+				fmt.Println("Operation cancelled.")
+				return 0
+			}
 		}
 
 		printSuccess("Configurations pulled successfully")
@@ -112,7 +121,17 @@ func printUsage() {
 
 func printConfigs(configs []Config) {
 	for i := 0; i < len(configs); i++ {
-		fmt.Printf("- %s %s %s\n", configs[i].Domain, configs[i].Key, *configs[i].Value)
+		if configs[i].Value == nil {
+			fmt.Printf("- %s %s (no value)\n", configs[i].Domain, configs[i].Key)
+			continue
+		}
+
+		// Include type information in output if available
+		typeStr := ""
+		if configs[i].Type != "" {
+			typeStr = fmt.Sprintf(" -%s", configs[i].Type)
+		}
+		fmt.Printf("- %s %s%s %s\n", configs[i].Domain, configs[i].Key, typeStr, *configs[i].Value)
 	}
 }
 
@@ -125,6 +144,20 @@ func printSuccess(message string) {
 }
 
 func handlePush(configs []Config) int {
+	if !yesFlag {
+		color.Yellow("Warning: mdefaults will modify your macOS system settings. Proceed with caution.")
+		fmt.Print("Do you want to continue? (yes/no): ")
+		var response string
+		if _, err := fmt.Scanln(&response); err != nil {
+			fmt.Println("Failed to read input, operation cancelled.")
+			return 1
+		}
+		if response != "yes" {
+			fmt.Println("Operation cancelled.")
+			return 0
+		}
+	}
+
 	push(configs)
 	printSuccess("Configurations pushed successfully")
 	return 0
