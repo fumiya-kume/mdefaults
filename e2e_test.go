@@ -49,9 +49,9 @@ func TestE2E(t *testing.T) {
 	}
 
 	// Create test config file with test values
-	testConfig := `com.apple.screencapture style
-com.apple.screencapture video
-com.apple.dock version`
+	testConfig := `com.apple.homeenergyd Migration24
+com.apple.iCal CALPrefLastTruthFileMigrationVersion
+com.apple.WindowManager LastHeartbeatDateString.daily`
 
 	if err := os.WriteFile(originalConfig, []byte(testConfig), 0644); err != nil {
 		t.Fatalf("Failed to write test config: %v", err)
@@ -94,9 +94,9 @@ com.apple.dock version`
 	// Test the push command
 	t.Run("PushCommand", func(t *testing.T) {
 		// First, modify the config to set predictable test values
-		testValues := `com.apple.screencapture style selection;"
-com.apple.screencapture video 1"
-com.apple.dock version 1`
+		testValues := `com.apple.homeenergyd Migration24 true;
+com.apple.iCal CALPrefLastTruthFileMigrationVersion 2
+com.apple.WindowManager LastHeartbeatDateString.daily "1"`
 
 		if err := os.WriteFile(originalConfig, []byte(testValues), 0644); err != nil {
 			t.Fatalf("Failed to write test values: %v", err)
@@ -116,9 +116,9 @@ com.apple.dock version 1`
 			expectedValue string
 			expectedType  string
 		}{
-			{"com.apple.screencapture", "style", "selection", "string"},
-			{"com.apple.screencapture", "video", "1", "boolean"},
-			{"com.apple.dock", "version", "1", "integer"},
+			{"com.apple.homeenergyd", "Migration24", "true", "boolean"},
+			{"com.apple.iCal", "CALPrefLastTruthFileMigrationVersion", "1", "integer"},
+			{"com.apple.WindowManager", "LastHeartbeatDateString.daily", "hogehoge", "string"},
 		} {
 			// Check value
 			valueCmd := exec.Command("defaults", "read", tc.domain, tc.key)
@@ -153,9 +153,9 @@ com.apple.dock version 1`
 			domain string
 			key    string
 		}{
-			{"com.apple.screencapture", "style"},
-			{"com.apple.screencapture", "video"},
-			{"com.apple.dock", "version"},
+			{"com.apple.homeenergyd", "Migration24"},
+			{"com.apple.iCal", "CALPrefLastTruthFileMigrationVersion"},
+			{"com.apple.WindowManager", "LastHeartbeatDateString.daily"},
 		} {
 			cmd := exec.Command("defaults", "delete", item.domain, item.key)
 			if err := cmd.Run(); err != nil {
