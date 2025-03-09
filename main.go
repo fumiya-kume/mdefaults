@@ -20,7 +20,7 @@ func initFlags() {
 	flag.BoolVar(&versionFlag, "version", false, "Print version information")
 	flag.BoolVar(&vFlag, "v", false, "Print version information")
 	flag.BoolVar(&verboseFlag, "verbose", false, "Enable verbose logging")
-	flag.BoolVar(&yesFlag, "y", false, "Automatically confirm prompts")
+	flag.BoolVar(&yesFlag, "y", false, "Skip confirmation prompts")
 }
 
 var (
@@ -144,6 +144,20 @@ func printSuccess(message string) {
 }
 
 func handlePush(configs []Config) int {
+	if !yesFlag {
+		color.Yellow("Warning: mdefaults will modify your macOS system settings. Proceed with caution.")
+		fmt.Print("Do you want to continue? (yes/no): ")
+		var response string
+		if _, err := fmt.Scanln(&response); err != nil {
+			fmt.Println("Failed to read input, operation cancelled.")
+			return 1
+		}
+		if response != "yes" {
+			fmt.Println("Operation cancelled.")
+			return 0
+		}
+	}
+
 	push(configs)
 	printSuccess("Configurations pushed successfully")
 	return 0
