@@ -12,6 +12,9 @@ import (
 // TestE2E runs end-to-end tests for the mdefaults tool.
 // These tests are designed to be run in a CI environment and won't affect the host system.
 func TestE2E(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping E2E tests in short mode")
+	}
 	// Skip if not running in CI environment to prevent messing with local settings
 	if os.Getenv("CI") != "true" {
 		t.Skip("Skipping E2E tests when not in CI environment")

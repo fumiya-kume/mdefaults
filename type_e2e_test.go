@@ -11,6 +11,9 @@ import (
 
 // TestValueTypeE2E tests specifically the type support functionality in a controlled environment
 func TestValueTypeE2E(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping E2E tests in short mode")
+	}
 	// Skip if not running in CI environment to prevent messing with local settings
 	if os.Getenv("CI") != "true" {
 		t.Skip("Skipping value type E2E tests when not in CI environment")
