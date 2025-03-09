@@ -62,7 +62,7 @@ com.apple.dock tilesize`
 
 	// Test the pull command
 	t.Run("PullCommand", func(t *testing.T) {
-		cmd := exec.Command("./mdefaults", "pull")
+		cmd := exec.Command("./mdefaults", "pull", "-y") // Add -y flag to skip confirmation
 		output, err := cmd.CombinedOutput()
 		if err != nil {
 			t.Fatalf("Failed to execute pull command: %v\nOutput: %s", err, output)
@@ -100,7 +100,7 @@ com.apple.dock tilesize -integer 48`
 		}
 
 		// Run push command
-		cmd := exec.Command("./mdefaults", "push")
+		cmd := exec.Command("./mdefaults", "push", "-y") // Add -y flag to skip confirmation if needed
 		output, err := cmd.CombinedOutput()
 		if err != nil {
 			t.Fatalf("Failed to execute push command: %v\nOutput: %s", err, output)

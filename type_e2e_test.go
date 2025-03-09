@@ -82,8 +82,8 @@ func TestValueTypeE2E(t *testing.T) {
 				}
 			}
 
-			// Execute push command
-			pushCmd := exec.Command("./mdefaults", "push")
+			// Execute push command with -y flag
+			pushCmd := exec.Command("./mdefaults", "push", "-y")
 			if output, err := pushCmd.CombinedOutput(); err != nil {
 				t.Fatalf("Failed to execute push command: %v\nOutput: %s", err, output)
 			}
@@ -138,8 +138,8 @@ func TestValueTypeE2E(t *testing.T) {
 				t.Fatalf("Failed to write basic config: %v", err)
 			}
 
-			// Execute pull command
-			pullCmd := exec.Command("./mdefaults", "pull")
+			// Execute pull command with -y flag
+			pullCmd := exec.Command("./mdefaults", "pull", "-y")
 			if output, err := pullCmd.CombinedOutput(); err != nil {
 				t.Fatalf("Failed to execute pull command: %v\nOutput: %s", err, output)
 			}
