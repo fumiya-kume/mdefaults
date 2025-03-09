@@ -15,7 +15,14 @@ func push(configs []Config) {
 			domain: config.Domain,
 			key:    config.Key,
 		}
-		if err := defaults.Write(context.Background(), *config.Value); err != nil {
+
+		// Use the stored type when writing the value, or default to string if not specified
+		valueType := config.Type
+		if valueType == "" {
+			valueType = "string"
+		}
+
+		if err := defaults.Write(context.Background(), *config.Value, valueType); err != nil {
 			log.Printf("Failed to write defaults for %s: %v", config.Key, err)
 		}
 	}
