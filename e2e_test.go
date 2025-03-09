@@ -49,9 +49,9 @@ func TestE2E(t *testing.T) {
 	}
 
 	// Create test config file with test values
-	testConfig := `com.apple.screencapture location
-com.apple.screencapture type
-com.apple.dock tilesize`
+	testConfig := `com.apple.screencapture style
+com.apple.screencapture video
+com.apple.dock version`
 
 	if err := os.WriteFile(originalConfig, []byte(testConfig), 0644); err != nil {
 		t.Fatalf("Failed to write test config: %v", err)
@@ -94,9 +94,9 @@ com.apple.dock tilesize`
 	// Test the push command
 	t.Run("PushCommand", func(t *testing.T) {
 		// First, modify the config to set predictable test values
-		testValues := `com.apple.screencapture location -string "/tmp/screenshots"
-com.apple.screencapture type -string "png"
-com.apple.dock tilesize -integer 48`
+		testValues := `com.apple.screencapture style selection;"
+com.apple.screencapture video 1"
+com.apple.dock version 1`
 
 		if err := os.WriteFile(originalConfig, []byte(testValues), 0644); err != nil {
 			t.Fatalf("Failed to write test values: %v", err)
