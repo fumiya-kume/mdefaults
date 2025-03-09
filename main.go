@@ -121,7 +121,17 @@ func printUsage() {
 
 func printConfigs(configs []Config) {
 	for i := 0; i < len(configs); i++ {
-		fmt.Printf("- %s %s %s\n", configs[i].Domain, configs[i].Key, *configs[i].Value)
+		if configs[i].Value == nil {
+			fmt.Printf("- %s %s (no value)\n", configs[i].Domain, configs[i].Key)
+			continue
+		}
+
+		// Include type information in output if available
+		typeStr := ""
+		if configs[i].Type != "" {
+			typeStr = fmt.Sprintf(" -%s", configs[i].Type)
+		}
+		fmt.Printf("- %s %s%s %s\n", configs[i].Domain, configs[i].Key, typeStr, *configs[i].Value)
 	}
 }
 

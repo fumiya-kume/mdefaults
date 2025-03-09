@@ -113,6 +113,15 @@ func TestValueTypeE2E(t *testing.T) {
 					if !strings.Contains(valueStr, tc.value) {
 						t.Errorf("Expected value to contain '%s', but got '%s'", tc.value, valueStr)
 					}
+				} else if tc.valueType == "boolean" {
+					// macOS defaults uses 1/0 for boolean values
+					expectedBool := "1"
+					if tc.value == "false" {
+						expectedBool = "0"
+					}
+					if valueStr != expectedBool {
+						t.Errorf("Expected boolean value to be '%s', but got '%s'", expectedBool, valueStr)
+					}
 				} else if valueStr != tc.value {
 					t.Errorf("Expected value to be '%s', but got '%s'", tc.value, valueStr)
 				}
