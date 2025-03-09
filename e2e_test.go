@@ -94,7 +94,7 @@ com.apple.WindowManager LastHeartbeatDateString.daily`
 	// Test the push command
 	t.Run("PushCommand", func(t *testing.T) {
 		// First, modify the config to set predictable test values
-		testValues := `com.apple.homeenergyd Migration24 true;
+		testValues := `com.apple.homeenergyd Migration24 true
 com.apple.iCal CALPrefLastTruthFileMigrationVersion 2
 com.apple.WindowManager LastHeartbeatDateString.daily "1"`
 
