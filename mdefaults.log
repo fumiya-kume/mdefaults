@@ -1,0 +1,2 @@
+2025/03/09 16:47:16 push.go:11: Skipping : Value is nil
+2025/03/09 16:47:16 push.go:26: Failed to write defaults for autohide: exit status 255

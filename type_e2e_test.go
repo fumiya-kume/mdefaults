@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -24,23 +25,27 @@ func TestValueTypeE2E(t *testing.T) {
 	// Backup original .mdefaults if it exists
 	originalConfig := filepath.Join(homeDir, ".mdefaults")
 	backupConfig := filepath.Join(homeDir, ".mdefaults.bak")
-	
-	originalExists := false
+
+	hasOriginalConfig := false
 	if _, err := os.Stat(originalConfig); err == nil {
-		originalExists = true
+		hasOriginalConfig = true
 		if err := os.Rename(originalConfig, backupConfig); err != nil {
 			t.Fatalf("Failed to backup original config: %v", err)
 		}
 		defer func() {
-			os.Remove(originalConfig)
-			if originalExists {
-				os.Rename(backupConfig, originalConfig)
+			if err := os.Remove(originalConfig); err != nil {
+				log.Printf("Failed to remove test config: %v", err)
+			}
+			if hasOriginalConfig {
+				if err := os.Rename(backupConfig, originalConfig); err != nil {
+					log.Printf("Failed to restore original config: %v", err)
+				}
 			}
 		}()
 	}
 
 	// Test different value types
-	testCases := []struct{
+	testCases := []struct {
 		name      string
 		domain    string
 		key       string
@@ -58,8 +63,11 @@ func TestValueTypeE2E(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			// Cleanup previous test values if they exist
 			deleteCmd := exec.Command("defaults", "delete", tc.domain, tc.key)
-			deleteCmd.Run() // Ignore errors, key might not exist
-			
+			// Ignore any errors, key might not exist
+			if err := deleteCmd.Run(); err != nil {
+				log.Printf("Note: Failed to delete %s.%s - may not exist: %v", tc.domain, tc.key, err)
+			}
+
 			// Create test config with a single key-value pair
 			testConfig := tc.domain + " " + tc.key + " -" + tc.valueType + " " + tc.value
 			if err := os.WriteFile(originalConfig, []byte(testConfig), 0644); err != nil {
@@ -111,7 +119,9 @@ func TestValueTypeE2E(t *testing.T) {
 			}
 
 			// Remove the config before the pull test
-			os.Remove(originalConfig)
+			if err := os.Remove(originalConfig); err != nil {
+				log.Printf("Failed to remove config file: %v", err)
+			}
 
 			// Create a basic config without type
 			basicConfig := tc.domain + " " + tc.key
@@ -139,8 +149,10 @@ func TestValueTypeE2E(t *testing.T) {
 			}
 
 			// Clean up by deleting the test key
-			deleteCmd = exec.Command("defaults", "delete", tc.domain, tc.key)
-			deleteCmd.Run()
+			deleteCleanupCmd := exec.Command("defaults", "delete", tc.domain, tc.key)
+			if err := deleteCleanupCmd.Run(); err != nil {
+				log.Printf("Warning: Failed to clean up test key %s.%s: %v", tc.domain, tc.key, err)
+			}
 		})
 	}
 }

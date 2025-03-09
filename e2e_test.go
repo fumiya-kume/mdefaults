@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -25,16 +26,22 @@ func TestE2E(t *testing.T) {
 	// Backup original .mdefaults if it exists
 	originalConfig := filepath.Join(homeDir, ".mdefaults")
 	backupConfig := filepath.Join(homeDir, ".mdefaults.bak")
-	
-	originalExists := false
+
+	hasOriginalConfig := false
 	if _, err := os.Stat(originalConfig); err == nil {
-		originalExists = true
+		hasOriginalConfig = true
 		if err := os.Rename(originalConfig, backupConfig); err != nil {
 			t.Fatalf("Failed to backup original config: %v", err)
 		}
 		defer func() {
-			os.Remove(originalConfig)
-			os.Rename(backupConfig, originalConfig)
+			if err := os.Remove(originalConfig); err != nil {
+				log.Printf("Failed to remove test config: %v", err)
+			}
+			if hasOriginalConfig {
+				if err := os.Rename(backupConfig, originalConfig); err != nil {
+					log.Printf("Failed to restore original config: %v", err)
+				}
+			}
 		}()
 	}
 
@@ -42,7 +49,7 @@ func TestE2E(t *testing.T) {
 	testConfig := `com.apple.screencapture location
 com.apple.screencapture type
 com.apple.dock tilesize`
-	
+
 	if err := os.WriteFile(originalConfig, []byte(testConfig), 0644); err != nil {
 		t.Fatalf("Failed to write test config: %v", err)
 	}
@@ -72,7 +79,7 @@ com.apple.dock tilesize`
 		if !strings.Contains(updatedStr, "-") {
 			t.Errorf("Expected config to contain type information, but got: %s", updatedStr)
 		}
-		
+
 		// Check that our test keys exist in the updated config
 		for _, key := range []string{"location", "type", "tilesize"} {
 			if !strings.Contains(updatedStr, key) {
@@ -101,8 +108,8 @@ com.apple.dock tilesize -integer 48`
 
 		// Verify the values were set correctly using defaults command
 		for _, tc := range []struct {
-			domain string
-			key    string
+			domain        string
+			key           string
 			expectedValue string
 			expectedType  string
 		}{
@@ -148,7 +155,10 @@ com.apple.dock tilesize -integer 48`
 			{"com.apple.dock", "tilesize"},
 		} {
 			cmd := exec.Command("defaults", "delete", item.domain, item.key)
-			cmd.Run() // Ignore errors, as the key might not exist
+			if err := cmd.Run(); err != nil {
+				// Just log errors here, as keys might not exist
+				log.Printf("Warning: Failed to delete %s.%s: %v", item.domain, item.key, err)
+			}
 		}
 	})
 }

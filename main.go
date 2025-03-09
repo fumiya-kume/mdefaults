@@ -47,8 +47,10 @@ func run() int {
 
 	command := os.Args[1]
 
-	// Parse flags after the command
-	flag.CommandLine.Parse(os.Args[2:])
+	// Since we're using ExitOnError, Parse won't return an error
+	// It will exit the program if there's a problem
+	// Using _ to explicitly ignore the return value
+	_ = flag.CommandLine.Parse(os.Args[2:])
 
 	fs := &fileSystem{}
 	if err := createConfigFileIfMissing(fs); err != nil {
