@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -25,7 +24,8 @@ func readConfigFile(fs FileSystem) ([]Config, error) {
 		return nil, err
 	}
 	configs := []Config{}
-	for _, line := range strings.Split(content, "\n") {
+	lines := strings.Split(content, "\n")
+	for _, line := range lines {
 		if line != "" {
 			parts := strings.Fields(line)
 			if len(parts) >= 2 {
@@ -53,16 +53,17 @@ func readConfigFile(fs FileSystem) ([]Config, error) {
 
 // generateConfigFileContent generates the content for the configuration file from a slice of Config.
 func generateConfigFileContent(configs []Config) string {
-	content := ""
+	var content strings.Builder
 	for _, config := range configs {
 		if config.Value == nil {
-			log.Printf("Skipping %s: Value is nil", config.Key)
-			continue
+			// Include entries without values, but don't include the type or value in the output
+			content.WriteString(fmt.Sprintf("%s %s\n", config.Domain, config.Key))
+		} else {
+			// Include the type and value for complete entries
+			content.WriteString(fmt.Sprintf("%s %s -%s %s\n", config.Domain, config.Key, config.Type, *config.Value))
 		}
-		// Include the type in the config file format: domain key -type value
-		content += fmt.Sprintf("%s %s -%s %s\n", config.Domain, config.Key, config.Type, *config.Value)
 	}
-	return content
+	return content.String()
 }
 
 func writeConfigFile(fs FileSystem, configs []Config) error {

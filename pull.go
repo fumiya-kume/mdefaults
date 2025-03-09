@@ -19,33 +19,33 @@ func pull(configs []Config) ([]Config, error) {
 func pullImpl(defaults []DefaultsCommand) ([]Config, error) {
 	updatedConfigs := make([]Config, 0, len(defaults))
 	for i := 0; i < len(defaults); i++ {
-		value, err := defaults[i].Read(context.Background())
-		if err != nil {
+		// Skip if domain or key is empty
+		if defaults[i].Domain() == "" || defaults[i].Key() == "" {
 			continue
 		}
+
+		// Try to read value and type
+		value, err := defaults[i].Read(context.Background())
+		if err != nil {
+			continue // Skip this config if there's an error reading the value
+		}
+
 		value = strings.TrimSpace(strings.ReplaceAll(value, "\n", ""))
 
-		// Read the value type
-		valueType, err := defaults[i].ReadType(context.Background())
-		if err != nil {
-			valueType = "string" // Default to string type if we can't determine the type
-		}
-
-		// Handle boolean values (convert 1/0 to true/false)
-		if valueType == "boolean" {
-			if value == "1" {
-				value = "true"
-			} else if value == "0" {
-				value = "false"
-			}
-		}
-
-		updatedConfigs = append(updatedConfigs, Config{
+		// Create config entry with domain and key
+		config := Config{
 			Domain: defaults[i].Domain(),
 			Key:    defaults[i].Key(),
+			Type:   "string", // Default type
 			Value:  &value,
-			Type:   valueType,
-		})
+		}
+
+		// Read the value type
+		if valueType, typeErr := defaults[i].ReadType(context.Background()); typeErr == nil {
+			config.Type = valueType
+		}
+
+		updatedConfigs = append(updatedConfigs, config)
 	}
 	return updatedConfigs, nil
 }
