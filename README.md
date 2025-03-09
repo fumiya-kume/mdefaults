@@ -33,6 +33,32 @@ com.apple.finder ShowPathbar
 
 Then execute `mdefaults pull` (get the current macOS configuration and save it to the file), `mdefaults push` (apply the configuration file to macOS).
 
+### Value Type Support
+
+mdefaults now supports preserving the original value types (boolean, integer, string, etc.) when reading from and writing to macOS defaults. This prevents issues that can occur when values are inadvertently stored as strings instead of their proper types.
+
+When you use `mdefaults pull`, the tool will automatically detect the proper type of each value and save it in the configuration file. The updated configuration format looks like this:
+
+```
+com.apple.AppleMultitouchTrackpad FirstClickThreshold -integer 1
+com.apple.AppleMultitouchTrackpad DragLock -boolean true
+com.apple.finder ShowPathbar -boolean true
+```
+
+Each line follows this format: `domain key -type value`
+
+Supported types include:
+- `-string`: Text values
+- `-int` or `-integer`: Integer values
+- `-float`: Floating point values
+- `-bool` or `-boolean`: Boolean values (true/false)
+- `-date`: Date values
+- `-data`: Binary data values
+- `-array`: Array values
+- `-dict`: Dictionary/object values
+
+When you use `mdefaults push`, the tool will use these type specifications to ensure values are written with their correct types.
+
 ### pull
 
 Pull the current macOS configuration that is written in the configuration file.
@@ -41,6 +67,11 @@ Pull the current macOS configuration that is written in the configuration file.
 mdefaults pull
 ```
 
+This command will:
+1. Read the config file at `~/.mdefaults`
+2. For each entry, read its current value and type from macOS defaults
+3. Update the config file with the current values and correct types
+
 ### push
 
 Apply the configuration settings from the file to macOS.
@@ -48,6 +79,8 @@ Apply the configuration settings from the file to macOS.
 ```
 mdefaults push
 ```
+
+This command will write each configuration entry to macOS defaults using the type specified in the config file.
 
 ### config
 
@@ -76,6 +109,7 @@ This will provide additional log output in the console and write detailed logs t
 If you encounter any issues, please check the following:
 - Ensure the configuration file is correctly formatted.
 - Verify that `mdefaults` is installed correctly.
+- If macOS is crashing after login, check that your configuration values have the correct types specified.
 
 ### Contributing
 
