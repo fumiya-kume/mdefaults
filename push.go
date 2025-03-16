@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"log"
+	"strconv"
+	"strings"
 )
 
 func push(configs []Config) {
@@ -16,12 +18,34 @@ func push(configs []Config) {
 			key:    config.Key,
 		}
 
-		// Use the stored type when writing the value, or default to string if not specified
-		valueType, err := defaults.ReadType(context.Background())
-		if err != nil {
-			log.Printf("Failed to read type for %s: %v", config.Key, err)
-			continue
+		// Use the type specified in the config if available and not the default
+		valueType := config.Type
+
+		// If type is the default "string" or empty, try to infer the type from the value
+		if valueType == "" || valueType == "string" {
+			// Try to infer the type from the value
+			value := strings.TrimSpace(*config.Value)
+
+			// Remove quotes if present
+			if (strings.HasPrefix(value, "\"") && strings.HasSuffix(value, "\"")) || 
+			   (strings.HasPrefix(value, "'") && strings.HasSuffix(value, "'")) {
+				value = value[1 : len(value)-1]
+				valueType = "string"
+			} else if value == "true" || value == "false" || value == "1" || value == "0" {
+				// Boolean values
+				valueType = "boolean"
+			} else if _, err := strconv.Atoi(value); err == nil {
+				// Integer values
+				valueType = "integer"
+			} else if _, err := strconv.ParseFloat(value, 64); err == nil {
+				// Float values
+				valueType = "float"
+			} else {
+				// Default to string for everything else
+				valueType = "string"
+			}
 		}
+
 		if valueType == "" {
 			valueType = "string"
 		}

@@ -49,9 +49,10 @@ func TestE2E(t *testing.T) {
 	}
 
 	// Create test config file with test values
-	testConfig := `com.apple.homeenergyd Migration24
-com.apple.iCal CALPrefLastTruthFileMigrationVersion
-com.apple.WindowManager LastHeartbeatDateString.daily`
+	testConfig := `com.apple.dock tilesize
+com.apple.finder ShowPathbar
+com.apple.screencapture location
+com.apple.screencapture type`
 
 	if err := os.WriteFile(originalConfig, []byte(testConfig), 0644); err != nil {
 		t.Fatalf("Failed to write test config: %v", err)
@@ -84,7 +85,7 @@ com.apple.WindowManager LastHeartbeatDateString.daily`
 		}
 
 		// Check that our test keys exist in the updated config
-		for _, key := range []string{"Migration24", "CALPrefLastTruthFileMigrationVersion", "LastHeartbeatDateString"} {
+		for _, key := range []string{"tilesize", "ShowPathbar", "location", "type"} {
 			if !strings.Contains(updatedStr, key) {
 				t.Errorf("Expected updated config to contain key '%s', but it doesn't", key)
 			}
@@ -93,10 +94,10 @@ com.apple.WindowManager LastHeartbeatDateString.daily`
 
 	// Test the push command
 	t.Run("PushCommand", func(t *testing.T) {
-		// First, modify the config to set predictable test values
-		testValues := `com.apple.homeenergyd Migration24 1
-com.apple.iCal CALPrefLastTruthFileMigrationVersion 2
-com.apple.WindowManager LastHeartbeatDateString.daily "hogehoge"`
+		// First, modify the config to set predictable test values with explicit type information
+		testValues := `com.apple.dock tilesize -integer 48
+com.apple.finder ShowPathbar -boolean true
+com.apple.screencapture location -string "/tmp"`
 
 		if err := os.WriteFile(originalConfig, []byte(testValues), 0644); err != nil {
 			t.Fatalf("Failed to write test values: %v", err)
@@ -109,6 +110,9 @@ com.apple.WindowManager LastHeartbeatDateString.daily "hogehoge"`
 			t.Fatalf("Failed to execute push command: %v\nOutput: %s", err, output)
 		}
 
+		// Print the output for debugging
+		t.Logf("Push command output: %s", output)
+
 		// Verify the values were set correctly using defaults command
 		for _, tc := range []struct {
 			domain        string
@@ -116,15 +120,26 @@ com.apple.WindowManager LastHeartbeatDateString.daily "hogehoge"`
 			expectedValue string
 			expectedType  string
 		}{
-			{"com.apple.homeenergyd", "Migration24", "1", "boolean"},
-			{"com.apple.iCal", "CALPrefLastTruthFileMigrationVersion", "2", "integer"},
-			{"com.apple.WindowManager", "LastHeartbeatDateString.daily", "hogehoge", "string"},
+			{"com.apple.dock", "tilesize", "48", "integer"},
+			{"com.apple.finder", "ShowPathbar", "1", "boolean"},
+			{"com.apple.screencapture", "location", "/tmp", "string"},
 		} {
 			// Check value
+			t.Logf("Checking value for %s %s", tc.domain, tc.key)
 			valueCmd := exec.Command("defaults", "read", tc.domain, tc.key)
 			valueOutput, err := valueCmd.CombinedOutput()
 			if err != nil {
 				t.Errorf("Failed to read %s.%s value: %v\nOutput: %s", tc.domain, tc.key, err, valueOutput)
+
+				// Try listing all domains for debugging
+				listCmd := exec.Command("defaults", "domains")
+				listOutput, listErr := listCmd.CombinedOutput()
+				if listErr != nil {
+					t.Logf("Failed to list domains: %v", listErr)
+				} else {
+					t.Logf("Available domains: %s", listOutput)
+				}
+
 				continue
 			}
 
@@ -153,9 +168,10 @@ com.apple.WindowManager LastHeartbeatDateString.daily "hogehoge"`
 			domain string
 			key    string
 		}{
-			{"com.apple.homeenergyd", "Migration24"},
-			{"com.apple.iCal", "CALPrefLastTruthFileMigrationVersion"},
-			{"com.apple.WindowManager", "LastHeartbeatDateString.daily"},
+			{"com.apple.dock", "tilesize"},
+			{"com.apple.finder", "ShowPathbar"},
+			{"com.apple.screencapture", "location"},
+			{"com.apple.screencapture", "type"},
 		} {
 			cmd := exec.Command("defaults", "delete", item.domain, item.key)
 			if err := cmd.Run(); err != nil {
