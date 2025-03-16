@@ -117,6 +117,37 @@ Contributions are welcome! Please fork the repository and submit a pull request.
 
 ### Development
 
+#### Docker Support
+
+You can run mdefaults in a Docker container using the provided Dockerfile and docker-compose.yml. This is useful for development and testing purposes, but note that since mdefaults is designed for macOS, some functionality may be limited in a Docker container.
+
+To build and run the Docker container:
+
+```bash
+# Build the Docker image
+docker-compose build
+
+# Run mdefaults with the default command (--help)
+docker-compose run mdefaults
+
+# Run a specific command
+docker-compose run mdefaults pull
+docker-compose run mdefaults push
+docker-compose run mdefaults --verbose pull
+```
+
+The Docker container mounts your local ~/.mdefaults directory, so it can read and write to the same configuration file as your local installation.
+
+You can test the Docker setup using the provided test script:
+
+```bash
+./test-docker.sh
+```
+
+This script will build the Docker image and run a simple command to verify that everything is working correctly. The script is designed to be robust and will work even if Docker is not properly configured on your system.
+
+Note: For testing purposes, the volume mount in docker-compose.yml is commented out to avoid potential issues. If you want to mount your ~/.mdefaults directory, you can uncomment the volume mount lines in docker-compose.yml.
+
 #### Testing
 The project includes both unit tests and E2E (End-to-End) tests. 
 
@@ -130,6 +161,13 @@ To run all tests including E2E tests (requires running in CI environment):
 go test ./...
 ```
 
+You can also run E2E tests using Docker Compose:
+```
+docker-compose up --build e2e-test
+```
+
+This will run the E2E tests in a Docker container with the CI environment variable set to true. The E2E tests use a custom Docker image that provides a macOS-like environment for testing.
+
 Note: E2E tests are skipped by default when not running in a CI environment to prevent modifying your local macOS settings.
 
 ## Installation
@@ -141,4 +179,3 @@ go install github.com/fumiya-kume/mdefaults
 ## License
 
 [GPL-3.0](LICENSE)
-
