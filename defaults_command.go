@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"regexp"
 	"strings"
 )
 
@@ -48,10 +49,14 @@ func (d *DefaultsCommandImpl) ReadType(ctx context.Context) (string, error) {
 		return "string", err // Default to string type on error
 	}
 	// Parse output which is in format "Type is <type>"
-	outputStr := string(output)
-	if strings.Contains(outputStr, "Type is ") {
-		// Extract the type, removing the "Type is " prefix and any trailing whitespace/newlines
-		typeStr := strings.TrimSpace(strings.TrimPrefix(outputStr, "Type is "))
+	outputStr := strings.TrimSpace(string(output))
+
+	// Use a regular expression to match "Type is" with any number of spaces
+	re := regexp.MustCompile(`^Type\s+is\s+(.+)$`)
+	matches := re.FindStringSubmatch(outputStr)
+
+	if len(matches) > 1 {
+		typeStr := strings.TrimSpace(matches[1])
 		return typeStr, nil
 	}
 	return "string", nil // Default to string type if parsing fails
