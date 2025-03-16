@@ -1,4 +1,4 @@
-# mdefaults [![Go](https://github.com/fumiya-kume/mdefaults/actions/workflows/go.yml/badge.svg)](https://github.com/fumiya-kume/mdefaults/actions/workflows/go.yml) [![codecov](https://codecov.io/gh/fumiya-kume/mdefaults/branch/master/graph/badge.svg)](https://codecov.io/gh/fumiya-kume/mdefaults)
+# mdefaults [![Go](https://github.com/fumiya-kume/mdefaults/actions/workflows/go.yml/badge.svg)](https://github.com/fumiya-kume/mdefaults/actions/workflows/go.yml)
 
 mdefaults is a tool for Configuration as Code (CaC) for macOS. It allows you to manage macOS configuration settings through code, making it easier to version control and automate configuration changes.
 
