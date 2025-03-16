@@ -43,10 +43,16 @@ jobs:
       with:
         go-version-file: 'go.mod'
 
-    - name: Test
+    - name: Test with coverage
       env:
         CI: true
-      run: go test -v ./...
+      run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.txt
+        fail_ci_if_error: true
 
   lint:
     runs-on: ubuntu-latest

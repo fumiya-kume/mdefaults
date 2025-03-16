@@ -1,4 +1,4 @@
-# mdefaults [![Go](https://github.com/fumiya-kume/mdefaults/actions/workflows/go.yml/badge.svg)](https://github.com/fumiya-kume/mdefaults/actions/workflows/go.yml)
+# mdefaults [![Go](https://github.com/fumiya-kume/mdefaults/actions/workflows/go.yml/badge.svg)](https://github.com/fumiya-kume/mdefaults/actions/workflows/go.yml) [![codecov](https://codecov.io/gh/fumiya-kume/mdefaults/branch/master/graph/badge.svg)](https://codecov.io/gh/fumiya-kume/mdefaults)
 
 mdefaults is a tool for Configuration as Code (CaC) for macOS. It allows you to manage macOS configuration settings through code, making it easier to version control and automate configuration changes.
 
@@ -159,6 +159,16 @@ go test -short ./...
 To run all tests including E2E tests (requires running in CI environment):
 ```
 go test ./...
+```
+
+To run tests with code coverage:
+```
+go test -coverprofile=coverage.txt -covermode=atomic ./...
+```
+
+You can then view the coverage report in your browser:
+```
+go tool cover -html=coverage.txt
 ```
 
 You can also run E2E tests using Docker Compose:
