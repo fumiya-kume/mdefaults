@@ -24,21 +24,23 @@ func pullImpl(defaults []DefaultsCommand) ([]Config, error) {
 			continue
 		}
 
-		// Try to read value and type
-		value, err := defaults[i].Read(context.Background())
-		if err != nil {
-			continue // Skip this config if there's an error reading the value
-		}
-
-		value = strings.TrimSpace(strings.ReplaceAll(value, "\n", ""))
-
-		// Create config entry with domain and key
+		// Create a base config entry with domain and key
 		config := Config{
 			Domain: defaults[i].Domain(),
 			Key:    defaults[i].Key(),
 			Type:   "string", // Default type
-			Value:  &value,
 		}
+
+		// Try to read value and type
+		value, err := defaults[i].Read(context.Background())
+		if err != nil {
+			// If we can't read the value, still keep the key in the config but without a value
+			updatedConfigs = append(updatedConfigs, config)
+			continue
+		}
+
+		value = strings.TrimSpace(strings.ReplaceAll(value, "\n", ""))
+		config.Value = &value
 
 		// Read the value type
 		if valueType, typeErr := defaults[i].ReadType(context.Background()); typeErr == nil {
