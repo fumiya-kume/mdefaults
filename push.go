@@ -27,10 +27,11 @@ func push(configs []Config) {
 			value := strings.TrimSpace(*config.Value)
 
 			// Remove quotes if present
-			if (strings.HasPrefix(value, "\"") && strings.HasSuffix(value, "\"")) || 
-			   (strings.HasPrefix(value, "'") && strings.HasSuffix(value, "'")) {
-				value = value[1 : len(value)-1]
+			if (strings.HasPrefix(value, "\"") && strings.HasSuffix(value, "\"")) || (strings.HasPrefix(value, "'") && strings.HasSuffix(value, "'")) {
+				// Set the value type to string for quoted values
 				valueType = "string"
+				// Remove the quotes for the actual value that will be written
+				*config.Value = value[1 : len(value)-1]
 			} else if value == "true" || value == "false" || value == "1" || value == "0" {
 				// Boolean values
 				valueType = "boolean"

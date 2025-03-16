@@ -139,7 +139,6 @@ func mainWithOSType(osType string) {
 		fmt.Println("Work In Progress: This tool uses macOS specific commands and may not function correctly on Linux/Windows.")
 	}
 	initFlags()
-	flag.Parse()
 
 	if versionFlag || vFlag {
 		fmt.Printf("Version: %s\n", version)

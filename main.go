@@ -13,6 +13,10 @@ import (
 var (
 	version      string
 	architecture string
+	versionFlag  bool
+	vFlag        bool
+	verboseFlag  bool
+	yesFlag      bool
 )
 
 func initFlags() {
@@ -21,14 +25,11 @@ func initFlags() {
 	flag.BoolVar(&vFlag, "v", false, "Print version information")
 	flag.BoolVar(&verboseFlag, "verbose", false, "Enable verbose logging")
 	flag.BoolVar(&yesFlag, "y", false, "Skip confirmation prompts")
+	// Parse flags here to avoid calling flag.Parse() twice
+	if len(os.Args) > 1 {
+		_ = flag.CommandLine.Parse(os.Args[2:])
+	}
 }
-
-var (
-	versionFlag bool
-	vFlag       bool
-	verboseFlag bool
-	yesFlag     bool
-)
 
 func setupLogging() {
 	logFile, err := os.OpenFile("mdefaults.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
@@ -170,7 +171,6 @@ func main() {
 		fmt.Println("Work In Progress: This tool uses macOS specific commands and may not function correctly on Linux/Windows.")
 	}
 	initFlags()
-	flag.Parse()
 
 	if versionFlag || vFlag {
 		fmt.Printf("Version: %s\n", version)
