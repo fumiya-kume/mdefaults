@@ -31,12 +31,11 @@ jobs:
     - name: Build
       run: go build -v ./...
 
-    - name: Set up Docker
-      uses: docker/setup-buildx-action@v2
-
-    - name: Run E2E Tests with Docker Compose
+    - name: Run E2E Tests directly on macOS
+      env:
+        CI: true
       run: |
-        docker-compose up --build e2e-test
+        go test -v ./...
 
     - name: Capture Defaults on Failure
       if: failure()
