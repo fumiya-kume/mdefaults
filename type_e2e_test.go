@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -18,6 +19,17 @@ func TestValueTypeE2E(t *testing.T) {
 	// Skip if not running in CI environment to prevent messing with local settings
 	if os.Getenv("CI") != "true" {
 		t.Skip("Skipping value type E2E tests when not in CI environment")
+	}
+
+	// Skip if not running on macOS
+	if runtime.GOOS != "darwin" {
+		t.Skip("Skipping value type E2E tests on non-macOS platform")
+	}
+
+	// Check if defaults command is available
+	defaultsCmd := exec.Command("defaults", "help")
+	if err := defaultsCmd.Run(); err != nil {
+		t.Skip("Skipping value type E2E tests because 'defaults' command is not available")
 	}
 
 	// Setup a test directory with a temporary .mdefaults file

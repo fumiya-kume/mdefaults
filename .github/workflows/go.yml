@@ -44,6 +44,8 @@ jobs:
         go-version-file: 'go.mod'
 
     - name: Test
+      env:
+        CI: true
       run: go test -v ./...
 
   lint:
