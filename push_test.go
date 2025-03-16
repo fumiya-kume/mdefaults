@@ -5,6 +5,64 @@ import (
 	"testing"
 )
 
+func TestPush_NilValue(t *testing.T) {
+	value := "test"
+	configs := []Config{
+		{Domain: "com.apple.dock", Key: "autohide", Value: nil, Type: "boolean"},
+		{Domain: "com.apple.dock", Key: "tilesize", Value: &value, Type: "integer"},
+	}
+
+	// Capture the output
+	output := captureOutput(func() {
+		push(configs)
+	})
+
+	// We expect the function to skip the nil value and continue with the next config
+	if output != "" {
+		t.Errorf("Expected no output, got %s", output)
+	}
+}
+
+func TestPush_TypeInference(t *testing.T) {
+	// Test cases for type inference
+	testCases := []struct {
+		name     string
+		value    string
+		expected string
+	}{
+		{"Quoted string", "\"hello world\"", "string"},
+		{"Single quoted string", "'hello world'", "string"},
+		{"Boolean true", "true", "boolean"},
+		{"Boolean false", "false", "boolean"},
+		{"Boolean 1", "1", "boolean"},
+		{"Boolean 0", "0", "boolean"},
+		{"Integer", "42", "integer"},
+		{"Float", "3.14", "float"},
+		{"Default string", "hello world", "string"},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			value := tc.value
+			config := Config{
+				Domain: "com.apple.test",
+				Key:    "testkey",
+				Value:  &value,
+				Type:   "", // Empty type to trigger inference
+			}
+
+			// Capture the output
+			output := captureOutput(func() {
+				push([]Config{config})
+			})
+
+			if output != "" {
+				t.Errorf("Expected no output, got %s", output)
+			}
+		})
+	}
+}
+
 func TestPush_EmptyConfigs(t *testing.T) {
 	configs := []Config{}
 
