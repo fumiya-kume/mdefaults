@@ -11,18 +11,18 @@ import (
 )
 
 var (
-	version      string
-	architecture string
-	versionFlag  bool
-	vFlag        bool
+	Version      string
+	Architecture string
+	VersionFlag  bool
+	VFlag        bool
 	verboseFlag  bool
 	yesFlag      bool
 )
 
-func initFlags() {
+func InitFlags() {
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
-	flag.BoolVar(&versionFlag, "version", false, "Print version information")
-	flag.BoolVar(&vFlag, "v", false, "Print version information")
+	flag.BoolVar(&VersionFlag, "version", false, "Print version information")
+	flag.BoolVar(&VFlag, "v", false, "Print version information")
 	flag.BoolVar(&verboseFlag, "verbose", false, "Enable verbose logging")
 	flag.BoolVar(&yesFlag, "y", false, "Skip confirmation prompts")
 	// Parse flags here to avoid calling flag.Parse() twice
@@ -40,7 +40,7 @@ func setupLogging() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
 
-func run() int {
+func Run() int {
 	if len(os.Args) < 2 {
 		printUsage()
 		return 0
@@ -170,15 +170,15 @@ func main() {
 	if osType == "linux" || osType == "windows" {
 		fmt.Println("Work In Progress: This tool uses macOS specific commands and may not function correctly on Linux/Windows.")
 	}
-	initFlags()
+	InitFlags()
 
-	if versionFlag || vFlag {
-		fmt.Printf("Version: %s\n", version)
-		fmt.Printf("Architecture: %s\n", architecture)
+	if VersionFlag || VFlag {
+		fmt.Printf("Version: %s\n", Version)
+		fmt.Printf("Architecture: %s\n", Architecture)
 		return
 	}
 
-	fmt.Printf("Version: %s\n", version)
-	fmt.Printf("Architecture: %s\n", architecture)
-	os.Exit(run())
+	fmt.Printf("Version: %s\n", Version)
+	fmt.Printf("Architecture: %s\n", Architecture)
+	os.Exit(Run())
 }

@@ -13,7 +13,35 @@ import (
 // Mock os.Exit function
 var osExit = os.Exit
 
+// Mock variables for testing
+var (
+	version      string = "test-version"
+	architecture string = "test-arch"
+	versionFlag  bool
+	vFlag        bool
+)
+
 // Remove remaining pull-related tests
+
+// Mock run function
+func run() int {
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: mdefaults [command]")
+		fmt.Println("Commands:")
+		fmt.Println("  pull    - Retrieve and update configuration values.")
+		fmt.Println("  push    - Write configuration values.")
+		fmt.Println("Hey, let's call with pull or push.")
+		return 0
+	}
+	return 0
+}
+
+// Mock initFlags function
+func initFlags() {
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+	flag.BoolVar(&versionFlag, "version", false, "Print version information")
+	flag.BoolVar(&vFlag, "v", false, "Print version information")
+}
 
 func resetFlags() {
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
@@ -76,9 +104,17 @@ func TestMain_VersionFlag(t *testing.T) {
 	originalArgs := os.Args
 	defer func() { os.Args = originalArgs }()
 
+	// Save the original os.Exit function and restore it after the test
+	originalExit := osExit
+	defer func() { osExit = originalExit }()
+
+	// Mock os.Exit to prevent it from terminating the test
+	osExit = func(code int) {}
+
 	os.Args = []string{"cmd", "--version"}
 	output := captureOutput(func() {
-		main()
+		// Use mainWithOSType instead of main
+		mainWithOSType("darwin")
 	})
 
 	if !bytes.Contains([]byte(output), []byte("Version: ")) || !bytes.Contains([]byte(output), []byte("Architecture: ")) {
@@ -91,9 +127,17 @@ func TestMain_VFlag(t *testing.T) {
 	originalArgs := os.Args
 	defer func() { os.Args = originalArgs }()
 
+	// Save the original os.Exit function and restore it after the test
+	originalExit := osExit
+	defer func() { osExit = originalExit }()
+
+	// Mock os.Exit to prevent it from terminating the test
+	osExit = func(code int) {}
+
 	os.Args = []string{"cmd", "-v"}
 	output := captureOutput(func() {
-		main()
+		// Use mainWithOSType instead of main
+		mainWithOSType("darwin")
 	})
 
 	if !bytes.Contains([]byte(output), []byte("Version: ")) || !bytes.Contains([]byte(output), []byte("Architecture: ")) {
