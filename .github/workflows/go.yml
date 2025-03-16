@@ -33,7 +33,7 @@ jobs:
       run: go build -v ./...
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     needs: build
     steps:
     - uses: actions/checkout@v4
