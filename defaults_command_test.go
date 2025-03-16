@@ -57,6 +57,20 @@ func TestDefaultsCommandReadTypeError(t *testing.T) {
 	}
 }
 
+func TestDefaultsCommandReadTypeEmptyResult(t *testing.T) {
+	defaults := &MockDefaultsCommand{
+		ReadTypeResult: "",
+		ReadTypeError:  nil,
+	}
+	result, err := defaults.ReadType(context.Background())
+	if err != nil {
+		t.Errorf("Expected nil error, got %v", err)
+	}
+	if result != "string" {
+		t.Errorf("Expected default type 'string' when ReadTypeResult is empty, but got %s", result)
+	}
+}
+
 func TestDefaultsCommandWriteSuccess(t *testing.T) {
 	defaults := &MockDefaultsCommand{
 		WriteError: nil,
