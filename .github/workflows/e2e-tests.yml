@@ -35,7 +35,7 @@ jobs:
       env:
         CI: true
       run: |
-        go test -v ./...
+        go test -v -run "TestE2E|TestValueTypeE2E" ./...
 
     - name: Capture Defaults on Failure
       if: failure()
