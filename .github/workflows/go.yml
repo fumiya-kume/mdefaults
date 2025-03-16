@@ -34,7 +34,6 @@ jobs:
 
   test:
     runs-on: macos-latest
-    needs: build
     steps:
     - uses: actions/checkout@v4
 
@@ -50,7 +49,6 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
-    needs: build
     steps:
     - uses: actions/checkout@v4
 
