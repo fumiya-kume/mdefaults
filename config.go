@@ -56,8 +56,8 @@ func generateConfigFileContent(configs []Config) string {
 	var content strings.Builder
 	for _, config := range configs {
 		if config.Value == nil {
-			// Include entries without values, but don't include the type or value in the output
-			content.WriteString(fmt.Sprintf("%s %s\n", config.Domain, config.Key))
+			// Include entries without values, but still include the type information
+			content.WriteString(fmt.Sprintf("%s %s -%s\n", config.Domain, config.Key, config.Type))
 		} else {
 			// Include the type and value for complete entries
 			content.WriteString(fmt.Sprintf("%s %s -%s %s\n", config.Domain, config.Key, config.Type, *config.Value))

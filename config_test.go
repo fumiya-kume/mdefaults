@@ -81,6 +81,21 @@ func TestGenerateConfigFileContent_Empty(t *testing.T) {
 	}
 }
 
+func TestGenerateConfigFileContent_NilValue(t *testing.T) {
+	configs := []Config{
+		{Domain: "com.apple.dock", Key: "autohide", Value: nil, Type: "boolean"},
+		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: nil, Type: "string"},
+	}
+
+	// The expected content should include the type information even for nil values
+	expectedContent := "com.apple.dock autohide -boolean\ncom.apple.finder ShowPathbar -string\n"
+	content := generateConfigFileContent(configs)
+
+	if content != expectedContent {
+		t.Errorf("Expected content %q, got %q", expectedContent, content)
+	}
+}
+
 func TestWriteConfigFile_Success(t *testing.T) {
 	mockFS := &MockFileSystem{
 		homeDir:          "/mock/home",
