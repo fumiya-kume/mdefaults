@@ -3,30 +3,29 @@ package main
 import (
 	"context"
 	"strings"
+
+	"github.com/fumiya-kume/mdefaults/internal/defaults"
 )
 
 func pull(configs []Config) ([]Config, error) {
-	defaults := make([]DefaultsCommand, 0, len(configs))
+	defaultsCmds := make([]defaults.DefaultsCommand, 0, len(configs))
 	for i := 0; i < len(configs); i++ {
-		defaults = append(defaults, &DefaultsCommandImpl{
-			domain: configs[i].Domain,
-			key:    configs[i].Key,
-		})
+		defaultsCmds = append(defaultsCmds, defaults.NewDefaultsCommandImpl(configs[i].Domain, configs[i].Key))
 	}
-	return pullImpl(defaults)
+	return pullImpl(defaultsCmds)
 }
 
-func pullImpl(defaults []DefaultsCommand) ([]Config, error) {
-	updatedConfigs := make([]Config, 0, len(defaults))
-	for i := 0; i < len(defaults); i++ {
-		value, err := defaults[i].Read(context.Background())
+func pullImpl(defaultsCmds []defaults.DefaultsCommand) ([]Config, error) {
+	updatedConfigs := make([]Config, 0, len(defaultsCmds))
+	for i := 0; i < len(defaultsCmds); i++ {
+		value, err := defaultsCmds[i].Read(context.Background())
 		if err != nil {
 			continue
 		}
 		value = strings.ReplaceAll(value, "\n", "")
 		updatedConfigs = append(updatedConfigs, Config{
-			Domain: defaults[i].Domain(),
-			Key:    defaults[i].Key(),
+			Domain: defaultsCmds[i].Domain(),
+			Key:    defaultsCmds[i].Key(),
 			Value:  &value,
 		})
 	}

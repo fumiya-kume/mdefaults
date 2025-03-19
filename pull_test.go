@@ -4,14 +4,16 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+
+	"github.com/fumiya-kume/mdefaults/internal/defaults"
 )
 
 func TestPull_Success(t *testing.T) {
-	defaults := []DefaultsCommand{
-		&MockDefaultsCommand{domain: "com.apple.dock", key: "autohide", ReadResult: "1"},
+	defaultsCmds := []defaults.DefaultsCommand{
+		&defaults.MockDefaultsCommand{DomainVal: "com.apple.dock", KeyVal: "autohide", ReadResult: "1"},
 	}
 
-	updatedConfigs, err := pullImpl(defaults)
+	updatedConfigs, err := pullImpl(defaultsCmds)
 	if err != nil {
 		t.Errorf("Expected nil error, got %v", err)
 	}
@@ -30,24 +32,23 @@ func TestPull_Success(t *testing.T) {
 }
 
 func TestPull_ReadError(t *testing.T) {
-
-	defaults := []DefaultsCommand{
-		&MockDefaultsCommand{domain: "com.apple.dock", key: "autohide", ReadError: errors.New("read error")},
+	defaultsCmds := []defaults.DefaultsCommand{
+		&defaults.MockDefaultsCommand{DomainVal: "com.apple.dock", KeyVal: "autohide", ReadError: errors.New("read error")},
 	}
 
-	updatedConfigs, _ := pullImpl(defaults)
+	updatedConfigs, _ := pullImpl(defaultsCmds)
 	if len(updatedConfigs) != 0 {
 		t.Errorf("Expected 0 configs, got %d", len(updatedConfigs))
 	}
 }
 
 func TestPull_MultipleConfigs(t *testing.T) {
-	defaults := []DefaultsCommand{
-		&MockDefaultsCommand{domain: "com.apple.dock", key: "autohide", ReadResult: "1"},
-		&MockDefaultsCommand{domain: "com.apple.finder", key: "ShowPathbar", ReadResult: "true"},
+	defaultsCmds := []defaults.DefaultsCommand{
+		&defaults.MockDefaultsCommand{DomainVal: "com.apple.dock", KeyVal: "autohide", ReadResult: "1"},
+		&defaults.MockDefaultsCommand{DomainVal: "com.apple.finder", KeyVal: "ShowPathbar", ReadResult: "true"},
 	}
 
-	updatedConfigs, err := pullImpl(defaults)
+	updatedConfigs, err := pullImpl(defaultsCmds)
 	if err != nil {
 		t.Errorf("Expected nil error, got %v", err)
 	}
@@ -63,9 +64,9 @@ func TestPull_MultipleConfigs(t *testing.T) {
 }
 
 func TestPull_EmptyConfigs(t *testing.T) {
-	defaults := []DefaultsCommand{}
+	defaultsCmds := []defaults.DefaultsCommand{}
 
-	updatedConfigs, err := pullImpl(defaults)
+	updatedConfigs, err := pullImpl(defaultsCmds)
 	if err != nil {
 		t.Errorf("Expected nil error, got %v", err)
 	}
@@ -75,12 +76,12 @@ func TestPull_EmptyConfigs(t *testing.T) {
 }
 
 func TestPull_MixedResults(t *testing.T) {
-	defaults := []DefaultsCommand{
-		&MockDefaultsCommand{domain: "com.apple.dock", key: "autohide", ReadResult: "1"},
-		&MockDefaultsCommand{domain: "com.apple.finder", key: "ShowPathbar", ReadError: errors.New("read error")},
+	defaultsCmds := []defaults.DefaultsCommand{
+		&defaults.MockDefaultsCommand{DomainVal: "com.apple.dock", KeyVal: "autohide", ReadResult: "1"},
+		&defaults.MockDefaultsCommand{DomainVal: "com.apple.finder", KeyVal: "ShowPathbar", ReadError: errors.New("read error")},
 	}
 
-	updatedConfigs, _ := pullImpl(defaults)
+	updatedConfigs, _ := pullImpl(defaultsCmds)
 	if len(updatedConfigs) != 1 {
 		t.Errorf("Expected 1 config, got %d", len(updatedConfigs))
 	}
@@ -90,11 +91,11 @@ func TestPull_MixedResults(t *testing.T) {
 }
 
 func TestPull_InvalidConfig(t *testing.T) {
-	defaults := []DefaultsCommand{
-		&MockDefaultsCommand{domain: "", key: "", ReadError: errors.New("invalid config")},
+	defaultsCmds := []defaults.DefaultsCommand{
+		&defaults.MockDefaultsCommand{DomainVal: "", KeyVal: "", ReadError: errors.New("invalid config")},
 	}
 
-	updatedConfigs, err := pullImpl(defaults)
+	updatedConfigs, err := pullImpl(defaultsCmds)
 	if err != nil {
 		t.Errorf("Expected nil error, got %v", err)
 	}
@@ -104,9 +105,9 @@ func TestPull_InvalidConfig(t *testing.T) {
 }
 
 func TestPull_MaxConfigs(t *testing.T) {
-	maxConfigs := make([]DefaultsCommand, 1000) // Assuming 1000 is the max for this example
+	maxConfigs := make([]defaults.DefaultsCommand, 1000) // Assuming 1000 is the max for this example
 	for i := 0; i < 1000; i++ {
-		maxConfigs[i] = &MockDefaultsCommand{domain: fmt.Sprintf("domain%d", i), key: fmt.Sprintf("key%d", i), ReadResult: "value"}
+		maxConfigs[i] = &defaults.MockDefaultsCommand{DomainVal: fmt.Sprintf("domain%d", i), KeyVal: fmt.Sprintf("key%d", i), ReadResult: "value"}
 	}
 
 	updatedConfigs, err := pullImpl(maxConfigs)
@@ -119,11 +120,11 @@ func TestPull_MaxConfigs(t *testing.T) {
 }
 
 func TestPull_ErrorHandling(t *testing.T) {
-	defaults := []DefaultsCommand{
-		&MockDefaultsCommand{domain: "com.apple.dock", key: "autohide", ReadError: errors.New("unexpected error")},
+	defaultsCmds := []defaults.DefaultsCommand{
+		&defaults.MockDefaultsCommand{DomainVal: "com.apple.dock", KeyVal: "autohide", ReadError: errors.New("unexpected error")},
 	}
 
-	updatedConfigs, err := pullImpl(defaults)
+	updatedConfigs, err := pullImpl(defaultsCmds)
 	if err != nil {
 		t.Errorf("Expected nil error, got %v", err)
 	}
