@@ -9,6 +9,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/fumiya-kume/mdefaults/internal/config"
+	"github.com/fumiya-kume/mdefaults/internal/filesystem"
 )
 
 var (
@@ -51,8 +52,8 @@ func run() int {
 	// Parse flags after the command
 	flag.CommandLine.Parse(os.Args[2:])
 
-	fs := &fileSystem{}
-	if err := createConfigFileIfMissing(fs); err != nil {
+	fs := filesystem.NewOSFileSystem()
+	if err := filesystem.CreateConfigFileIfMissing(fs); err != nil {
 		log.Printf("Failed to create config file: %v", err)
 	}
 	configs, err := config.ReadConfigFile(fs)
