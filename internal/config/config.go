@@ -17,9 +17,15 @@ type Config struct {
 
 var ConfigFilePath = filepath.Join(os.Getenv("HOME"), ".mdefaults")
 
+// FileSystemReader is a minimal interface for file system operations needed by config package
+type FileSystemReader interface {
+	ReadFile(name string) (string, error)
+	WriteFile(name string, content string) error
+}
+
 // ReadConfigFile reads the configuration file and returns a slice of Config.
-func ReadConfigFile(fs FileSystem) ([]Config, error) {
-	content, err := ReadConfigFileString(fs)
+func ReadConfigFile(fs FileSystemReader) ([]Config, error) {
+	content, err := fs.ReadFile(ConfigFilePath)
 	if err != nil {
 		return nil, err
 	}
@@ -50,36 +56,8 @@ func GenerateConfigFileContent(configs []Config) string {
 	return content
 }
 
-func WriteConfigFile(fs FileSystem, configs []Config) error {
+// WriteConfigFile writes the configs to the configuration file.
+func WriteConfigFile(fs FileSystemReader, configs []Config) error {
 	content := GenerateConfigFileContent(configs)
 	return fs.WriteFile(ConfigFilePath, content)
-}
-
-// FileSystem interface for file operations
-type FileSystem interface {
-	UserHomeDir() (string, error)
-	Stat(name string) (os.FileInfo, error)
-	Create(name string) (*os.File, error)
-	ReadFile(name string) (string, error)
-	WriteFile(name string, content string) error
-}
-
-// CreateConfigFileIfMissing checks for the existence of the config file and creates it if it doesn't exist
-func CreateConfigFileIfMissing(fs FileSystem) error {
-	if _, err := fs.Stat(ConfigFilePath); os.IsNotExist(err) {
-		file, err := fs.Create(ConfigFilePath)
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-	}
-	return nil
-}
-
-func ReadConfigFileString(fs FileSystem) (string, error) {
-	content, err := fs.ReadFile(ConfigFilePath)
-	if err != nil {
-		return "", err
-	}
-	return string(content), nil
 }
