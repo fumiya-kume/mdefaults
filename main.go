@@ -11,24 +11,25 @@ import (
 )
 
 var (
-	version      string
-	architecture string
+	Version      string
+	Architecture string
+	VersionFlag  bool
+	VFlag        bool
+	verboseFlag  bool
+	yesFlag      bool
 )
 
-func initFlags() {
+func InitFlags() {
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
-	flag.BoolVar(&versionFlag, "version", false, "Print version information")
-	flag.BoolVar(&vFlag, "v", false, "Print version information")
+	flag.BoolVar(&VersionFlag, "version", false, "Print version information")
+	flag.BoolVar(&VFlag, "v", false, "Print version information")
 	flag.BoolVar(&verboseFlag, "verbose", false, "Enable verbose logging")
-	flag.BoolVar(&yesFlag, "y", false, "Automatically confirm prompts")
+	flag.BoolVar(&yesFlag, "y", false, "Skip confirmation prompts")
+	// Parse flags here to avoid calling flag.Parse() twice
+	if len(os.Args) > 1 {
+		_ = flag.CommandLine.Parse(os.Args[2:])
+	}
 }
-
-var (
-	versionFlag bool
-	vFlag       bool
-	verboseFlag bool
-	yesFlag     bool
-)
 
 func setupLogging() {
 	logFile, err := os.OpenFile("mdefaults.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
@@ -39,7 +40,7 @@ func setupLogging() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
 
-func run() int {
+func Run() int {
 	if len(os.Args) < 2 {
 		printUsage()
 		return 0
@@ -47,8 +48,10 @@ func run() int {
 
 	command := os.Args[1]
 
-	// Parse flags after the command
-	flag.CommandLine.Parse(os.Args[2:])
+	// Since we're using ExitOnError, Parse won't return an error
+	// It will exit the program if there's a problem
+	// Using _ to explicitly ignore the return value
+	_ = flag.CommandLine.Parse(os.Args[2:])
 
 	fs := &fileSystem{}
 	if err := createConfigFileIfMissing(fs); err != nil {
@@ -119,7 +122,17 @@ func printUsage() {
 
 func printConfigs(configs []Config) {
 	for i := 0; i < len(configs); i++ {
-		fmt.Printf("- %s %s %s\n", configs[i].Domain, configs[i].Key, *configs[i].Value)
+		if configs[i].Value == nil {
+			fmt.Printf("- %s %s (no value)\n", configs[i].Domain, configs[i].Key)
+			continue
+		}
+
+		// Include type information in output if available
+		typeStr := ""
+		if configs[i].Type != "" {
+			typeStr = fmt.Sprintf(" -%s", configs[i].Type)
+		}
+		fmt.Printf("- %s %s%s %s\n", configs[i].Domain, configs[i].Key, typeStr, *configs[i].Value)
 	}
 }
 
@@ -132,6 +145,20 @@ func printSuccess(message string) {
 }
 
 func handlePush(configs []Config) int {
+	if !yesFlag {
+		color.Yellow("Warning: mdefaults will modify your macOS system settings. Proceed with caution.")
+		fmt.Print("Do you want to continue? (yes/no): ")
+		var response string
+		if _, err := fmt.Scanln(&response); err != nil {
+			fmt.Println("Failed to read input, operation cancelled.")
+			return 1
+		}
+		if response != "yes" {
+			fmt.Println("Operation cancelled.")
+			return 0
+		}
+	}
+
 	push(configs)
 	printSuccess("Configurations pushed successfully")
 	return 0
@@ -143,16 +170,15 @@ func main() {
 	if osType == "linux" || osType == "windows" {
 		fmt.Println("Work In Progress: This tool uses macOS specific commands and may not function correctly on Linux/Windows.")
 	}
-	initFlags()
-	flag.Parse()
+	InitFlags()
 
-	if versionFlag || vFlag {
-		fmt.Printf("Version: %s\n", version)
-		fmt.Printf("Architecture: %s\n", architecture)
+	if VersionFlag || VFlag {
+		fmt.Printf("Version: %s\n", Version)
+		fmt.Printf("Architecture: %s\n", Architecture)
 		return
 	}
 
-	fmt.Printf("Version: %s\n", version)
-	fmt.Printf("Architecture: %s\n", architecture)
-	os.Exit(run())
+	fmt.Printf("Version: %s\n", Version)
+	fmt.Printf("Architecture: %s\n", Architecture)
+	os.Exit(Run())
 }

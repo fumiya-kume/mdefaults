@@ -1,0 +1,13 @@
+# Use a macOS-based image for E2E tests
+FROM sickcodes/docker-osx:latest
+
+WORKDIR /app
+
+# Copy the source code
+COPY . .
+
+# Set the CI environment variable to true
+ENV CI=true
+
+# Run the E2E tests
+CMD ["go", "test", "-v", "./..."]

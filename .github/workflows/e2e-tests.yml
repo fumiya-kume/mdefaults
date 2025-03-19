@@ -1,0 +1,55 @@
+name: End-to-End Tests
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  e2e-test:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version-file: 'go.mod'
+
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Build
+      run: go build -v ./...
+
+    - name: Run E2E Tests directly on macOS
+      env:
+        CI: true
+      run: |
+        go test -v -run "TestE2E|TestValueTypeE2E" ./...
+
+    - name: Capture Defaults on Failure
+      if: failure()
+      run: |
+        echo "== Current values of test domains =="
+        defaults read com.apple.screencapture || echo "No screencapture defaults"
+        defaults read com.apple.dock || echo "No dock defaults"
+        defaults read com.test.mdefaults.e2e || echo "No test defaults"
+
+    - name: Cleanup on Failure
+      if: failure()
+      run: |
+        echo "== Cleaning up test values =="
+        defaults delete com.apple.screencapture location || true
+        defaults delete com.apple.screencapture type || true
+        defaults delete com.apple.dock tilesize || true
+        defaults delete com.test.mdefaults.e2e || true

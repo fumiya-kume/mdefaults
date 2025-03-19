@@ -1,0 +1,28 @@
+services:
+  mdefaults:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Volumes are commented out for the test script to avoid mount issues
+    # volumes:
+    #   - ${HOME}/.mdefaults:/root/.mdefaults:ro,consistent
+    environment:
+      - TERM=xterm-256color
+    command: ["--help"]
+    # Override the command with your desired mdefaults command
+    # Examples:
+    # command: ["pull"]
+    # command: ["push"]
+    # command: ["--verbose", "pull"]
+
+  e2e-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.e2e
+    volumes:
+      - .:/app
+      - ${HOME}/.mdefaults:/root/.mdefaults
+    environment:
+      - TERM=xterm-256color
+      - CI=true
+    command: ["go", "test", "-v", "./..."]

@@ -46,7 +46,7 @@ jobs:
             VERSION_PATCH=$((VERSION_PATCH + 1))
           fi
           NEW_VERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
-          echo "::set-output name=new_version::${NEW_VERSION}"
+          echo "new_version=${NEW_VERSION}" >> $GITHUB_OUTPUT
 
   create_tag:
     needs: generate_new_version

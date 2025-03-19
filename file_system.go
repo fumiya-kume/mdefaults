@@ -4,7 +4,7 @@ import (
 	"os"
 )
 
-// OSFileSystem is a concrete implementation of FileSystem using the os package
+// FileSystem is an interface for file system operations
 type FileSystem interface {
 	UserHomeDir() (string, error)
 	Stat(name string) (os.FileInfo, error)

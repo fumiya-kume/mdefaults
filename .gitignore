@@ -26,3 +26,4 @@ go.work.sum
 
 @todo.txt
 mdefaults
+/mdefaults.log
