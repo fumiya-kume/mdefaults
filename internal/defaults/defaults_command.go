@@ -38,6 +38,9 @@ func (d *DefaultsCommandImpl) Key() string {
 
 // Read executes a command to read a default setting.
 func (d *DefaultsCommandImpl) Read(ctx context.Context) (string, error) {
+	if d.domain == "" || d.key == "" {
+		return "", fmt.Errorf("domain and key cannot be empty")
+	}
 	command := fmt.Sprintf("defaults read %s %s", d.domain, d.key)
 	output, err := exec.CommandContext(ctx, "bash", "-c", command).Output()
 	if err != nil {
@@ -48,6 +51,9 @@ func (d *DefaultsCommandImpl) Read(ctx context.Context) (string, error) {
 
 // Write executes a command to write a default setting.
 func (d *DefaultsCommandImpl) Write(ctx context.Context, value string) error {
+	if d.domain == "" || d.key == "" {
+		return fmt.Errorf("domain and key cannot be empty")
+	}
 	command := fmt.Sprintf("defaults write %s %s %s", d.domain, d.key, value)
 	_, err := exec.CommandContext(ctx, "bash", "-c", command).Output()
 	if err != nil {
