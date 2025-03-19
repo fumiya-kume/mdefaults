@@ -8,6 +8,7 @@ import (
 	"runtime"
 
 	"github.com/fatih/color"
+	"github.com/fumiya-kume/mdefaults/internal/config"
 )
 
 var (
@@ -54,7 +55,7 @@ func run() int {
 	if err := createConfigFileIfMissing(fs); err != nil {
 		log.Printf("Failed to create config file: %v", err)
 	}
-	configs, err := readConfigFile(fs)
+	configs, err := config.ReadConfigFile(fs)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -91,7 +92,7 @@ func run() int {
 		}
 
 		printSuccess("Configurations pulled successfully")
-		if err := writeConfigFile(fs, macOSConfigs); err != nil {
+		if err := config.WriteConfigFile(fs, macOSConfigs); err != nil {
 			log.Printf("Failed to write config file: %v", err)
 			return 1
 		}
@@ -117,7 +118,7 @@ func printUsage() {
 	fmt.Println("Hey, let's call with pull or push.")
 }
 
-func printConfigs(configs []Config) {
+func printConfigs(configs []config.Config) {
 	for i := 0; i < len(configs); i++ {
 		fmt.Printf("- %s %s %s\n", configs[i].Domain, configs[i].Key, *configs[i].Value)
 	}
@@ -131,7 +132,7 @@ func printSuccess(message string) {
 	color.Green("Success: %s", message)
 }
 
-func handlePush(configs []Config) int {
+func handlePush(configs []config.Config) int {
 	push(configs)
 	printSuccess("Configurations pushed successfully")
 	return 0

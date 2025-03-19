@@ -4,19 +4,21 @@ import (
 	"errors"
 	"strings"
 	"testing"
+
+	"github.com/fumiya-kume/mdefaults/internal/config"
 )
 
 func TestReadConfigFile_Success(t *testing.T) {
 	fs := &MockFileSystem{homeDir: "/mock/home", statError: nil, createErr: nil, configFileContent: "com.apple.dock autohide 1\ncom.apple.finder ShowPathbar true\n"}
 
-	configs, err := readConfigFile(fs)
+	configs, err := config.ReadConfigFile(fs)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
 	value1 := "1"
 	value2 := "true"
-	expectedConfigs := []Config{
+	expectedConfigs := []config.Config{
 		{Domain: "com.apple.dock", Key: "autohide", Value: &value1},
 		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: &value2},
 	}
@@ -41,7 +43,7 @@ func TestReadConfigFile_Success(t *testing.T) {
 func TestReadConfigFile_Error(t *testing.T) {
 	fs := &MockFileSystem{statError: errors.New("read error")}
 
-	_, err := readConfigFile(fs)
+	_, err := config.ReadConfigFile(fs)
 	if err == nil {
 		t.Fatal("Expected error, got nil")
 	}
@@ -54,13 +56,13 @@ func TestReadConfigFile_Error(t *testing.T) {
 func TestGenerateConfigFileContent(t *testing.T) {
 	value1 := "1"
 	value2 := "true"
-	configs := []Config{
+	configs := []config.Config{
 		{Domain: "com.apple.dock", Key: "autohide", Value: &value1},
 		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: &value2},
 	}
 
 	expectedContent := "com.apple.dock autohide 1\ncom.apple.finder ShowPathbar true\n"
-	content := generateConfigFileContent(configs)
+	content := config.GenerateConfigFileContent(configs)
 
 	if content != expectedContent {
 		t.Errorf("Expected content %q, got %q", expectedContent, content)
@@ -68,10 +70,10 @@ func TestGenerateConfigFileContent(t *testing.T) {
 }
 
 func TestGenerateConfigFileContent_Empty(t *testing.T) {
-	configs := []Config{}
+	configs := []config.Config{}
 
 	expectedContent := ""
-	content := generateConfigFileContent(configs)
+	content := config.GenerateConfigFileContent(configs)
 
 	if content != expectedContent {
 		t.Errorf("Expected content %q, got %q", expectedContent, content)
@@ -87,12 +89,12 @@ func TestWriteConfigFile_Success(t *testing.T) {
 	value1 := "1"
 	value2 := "true"
 
-	configs := []Config{
+	configs := []config.Config{
 		{Domain: "com.apple.dock", Key: "autohide", Value: &value1},
 		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: &value2},
 	}
 
-	err := writeConfigFile(mockFS, configs)
+	err := config.WriteConfigFile(mockFS, configs)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
@@ -110,11 +112,11 @@ func TestWriteConfigFile_Error(t *testing.T) {
 	}
 
 	value1 := "1"
-	configs := []Config{
+	configs := []config.Config{
 		{Domain: "com.apple.dock", Key: "autohide", Value: &value1},
 	}
 
-	err := writeConfigFile(mockFS, configs)
+	err := config.WriteConfigFile(mockFS, configs)
 	if err == nil {
 		t.Fatal("Expected error, got nil")
 	}

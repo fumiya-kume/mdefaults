@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"testing"
+
+	"github.com/fumiya-kume/mdefaults/internal/config"
 )
 
 func TestPush_EmptyConfigs(t *testing.T) {
-	configs := []Config{}
+	configs := []config.Config{}
 
 	// Capture the output
 	output := captureOutput(func() {
@@ -19,7 +21,7 @@ func TestPush_EmptyConfigs(t *testing.T) {
 }
 
 func TestPush_InvalidConfig(t *testing.T) {
-	configs := []Config{
+	configs := []config.Config{
 		{Domain: "", Key: "", Value: nil},
 	}
 
@@ -34,10 +36,10 @@ func TestPush_InvalidConfig(t *testing.T) {
 }
 
 func TestPush_MaxConfigs(t *testing.T) {
-	maxConfigs := make([]Config, 1000) // Assuming 1000 is the max for this example
+	maxConfigs := make([]config.Config, 1000) // Assuming 1000 is the max for this example
 	for i := 0; i < 1000; i++ {
 		value := fmt.Sprintf("value%d", i)
-		maxConfigs[i] = Config{Domain: fmt.Sprintf("domain%d", i), Key: fmt.Sprintf("key%d", i), Value: &value}
+		maxConfigs[i] = config.Config{Domain: fmt.Sprintf("domain%d", i), Key: fmt.Sprintf("key%d", i), Value: &value}
 	}
 
 	// Capture the output
