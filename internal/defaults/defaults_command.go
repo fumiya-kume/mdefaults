@@ -20,6 +20,14 @@ type DefaultsCommandImpl struct {
 	key    string
 }
 
+// NewDefaultsCommandImpl creates a new DefaultsCommandImpl with the given domain and key.
+func NewDefaultsCommandImpl(domain, key string) *DefaultsCommandImpl {
+	return &DefaultsCommandImpl{
+		domain: domain,
+		key:    key,
+	}
+}
+
 func (d *DefaultsCommandImpl) Domain() string {
 	return d.domain
 }
