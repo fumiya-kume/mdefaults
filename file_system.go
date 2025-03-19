@@ -2,6 +2,8 @@ package main
 
 import (
 	"os"
+
+	"github.com/fumiya-kume/mdefaults/internal/config"
 )
 
 // OSFileSystem is a concrete implementation of FileSystem using the os package
@@ -41,20 +43,12 @@ func (f *fileSystem) ReadFile(name string) (string, error) {
 
 // createConfigFileIfMissing checks for the existence of the config file and creates it if it doesn't exist
 func createConfigFileIfMissing(fs FileSystem) error {
-	if _, err := fs.Stat(configFilePath); os.IsNotExist(err) {
-		file, err := fs.Create(configFilePath)
+	if _, err := fs.Stat(config.ConfigFilePath); os.IsNotExist(err) {
+		file, err := fs.Create(config.ConfigFilePath)
 		if err != nil {
 			return err
 		}
 		defer file.Close()
 	}
 	return nil
-}
-
-func readConfigFileString(fs FileSystem) (string, error) {
-	content, err := fs.ReadFile(configFilePath)
-	if err != nil {
-		return "", err
-	}
-	return string(content), nil
 }
