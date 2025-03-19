@@ -12,6 +12,7 @@ import (
 	"github.com/fumiya-kume/mdefaults/internal/filesystem"
 	pullop "github.com/fumiya-kume/mdefaults/internal/operation/pull"
 	pushop "github.com/fumiya-kume/mdefaults/internal/operation/push"
+	"github.com/fumiya-kume/mdefaults/internal/printer"
 )
 
 var (
@@ -75,7 +76,7 @@ func run() int {
 		fmt.Println("macOS Configuration:")
 		macOSConfigs, err := pullop.Pull(configs)
 		if err != nil {
-			printError("Failed to pull configurations")
+			printer.PrintError("Failed to pull configurations")
 			return 1
 		}
 		printConfigs(macOSConfigs)
@@ -94,7 +95,7 @@ func run() int {
 			}
 		}
 
-		printSuccess("Configurations pulled successfully")
+		printer.PrintSuccess("Configurations pulled successfully")
 		if err := config.WriteConfigFile(fs, macOSConfigs); err != nil {
 			log.Printf("Failed to write config file: %v", err)
 			return 1
@@ -127,17 +128,9 @@ func printConfigs(configs []config.Config) {
 	}
 }
 
-func printError(message string) {
-	color.Red("Error: %s", message)
-}
-
-func printSuccess(message string) {
-	color.Green("Success: %s", message)
-}
-
 func handlePush(configs []config.Config) int {
 	pushop.Push(configs)
-	printSuccess("Configurations pushed successfully")
+	printer.PrintSuccess("Configurations pushed successfully")
 	return 0
 }
 
