@@ -1,4 +1,4 @@
-package main
+package filesystem
 
 import (
 	"os"
@@ -15,25 +15,31 @@ type FileSystem interface {
 	WriteFile(name string, content string) error
 }
 
-type fileSystem struct{}
+// OSFileSystem is a concrete implementation of the FileSystem interface
+type OSFileSystem struct{}
 
-func (f *fileSystem) UserHomeDir() (string, error) {
+// NewOSFileSystem creates a new instance of OSFileSystem
+func NewOSFileSystem() *OSFileSystem {
+	return &OSFileSystem{}
+}
+
+func (f *OSFileSystem) UserHomeDir() (string, error) {
 	return os.UserHomeDir()
 }
 
-func (f *fileSystem) Stat(name string) (os.FileInfo, error) {
+func (f *OSFileSystem) Stat(name string) (os.FileInfo, error) {
 	return os.Stat(name)
 }
 
-func (f *fileSystem) Create(name string) (*os.File, error) {
+func (f *OSFileSystem) Create(name string) (*os.File, error) {
 	return os.Create(name)
 }
 
-func (f *fileSystem) WriteFile(name string, content string) error {
+func (f *OSFileSystem) WriteFile(name string, content string) error {
 	return os.WriteFile(name, []byte(content), 0644)
 }
 
-func (f *fileSystem) ReadFile(name string) (string, error) {
+func (f *OSFileSystem) ReadFile(name string) (string, error) {
 	content, err := os.ReadFile(name)
 	if err != nil {
 		return "", err
@@ -42,7 +48,7 @@ func (f *fileSystem) ReadFile(name string) (string, error) {
 }
 
 // createConfigFileIfMissing checks for the existence of the config file and creates it if it doesn't exist
-func createConfigFileIfMissing(fs FileSystem) error {
+func CreateConfigFileIfMissing(fs FileSystem) error {
 	if _, err := fs.Stat(config.ConfigFilePath); os.IsNotExist(err) {
 		file, err := fs.Create(config.ConfigFilePath)
 		if err != nil {
@@ -54,6 +60,6 @@ func createConfigFileIfMissing(fs FileSystem) error {
 }
 
 // readConfigFileString reads the config file and returns its content as a string
-func readConfigFileString(fs FileSystem) (string, error) {
+func ReadConfigFileString(fs FileSystem) (string, error) {
 	return fs.ReadFile(config.ConfigFilePath)
 }
