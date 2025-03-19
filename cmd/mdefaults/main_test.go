@@ -146,9 +146,6 @@ func mainWithOSType(osType string) {
 		fmt.Printf("Architecture: %s\n", architecture)
 		return
 	}
-
-	fmt.Printf("Version: %s\n", version)
-	fmt.Printf("Architecture: %s\n", architecture)
 	osExit(run())
 }
 

@@ -20,21 +20,6 @@ var (
 	architecture string
 )
 
-func initFlags() {
-	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
-	flag.BoolVar(&versionFlag, "version", false, "Print version information")
-	flag.BoolVar(&vFlag, "v", false, "Print version information")
-	flag.BoolVar(&verboseFlag, "verbose", false, "Enable verbose logging")
-	flag.BoolVar(&yesFlag, "y", false, "Automatically confirm prompts")
-}
-
-var (
-	versionFlag bool
-	vFlag       bool
-	verboseFlag bool
-	yesFlag     bool
-)
-
 func setupLogging() {
 	logFile, err := os.OpenFile("mdefaults.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
@@ -64,7 +49,8 @@ func run() int {
 	}
 	configs, err := config.ReadConfigFile(fs)
 	if err != nil {
-		fmt.Println(err)
+		log.Printf("Failed to read config file: %v", err)
+		return 1
 	}
 
 	if verboseFlag {
@@ -126,8 +112,8 @@ func printUsage() {
 }
 
 func printConfigs(configs []config.Config) {
-	for i := 0; i < len(configs); i++ {
-		fmt.Printf("- %s %s %s\n", configs[i].Domain, configs[i].Key, *configs[i].Value)
+	for _, cfg := range configs {
+		fmt.Printf("- %s %s %s\n", cfg.Domain, cfg.Key, *cfg.Value)
 	}
 }
 
@@ -135,6 +121,12 @@ func handlePush(configs []config.Config) int {
 	pushop.Push(configs)
 	printer.PrintSuccess("Configurations pushed successfully")
 	return 0
+}
+
+// printVersionInfo prints the version and architecture information
+func printVersionInfo() {
+	fmt.Printf("Version: %s\n", version)
+	fmt.Printf("Architecture: %s\n", architecture)
 }
 
 func main() {
@@ -147,12 +139,9 @@ func main() {
 	flag.Parse()
 
 	if versionFlag || vFlag {
-		fmt.Printf("Version: %s\n", version)
-		fmt.Printf("Architecture: %s\n", architecture)
+		printVersionInfo()
 		return
 	}
 
-	fmt.Printf("Version: %s\n", version)
-	fmt.Printf("Architecture: %s\n", architecture)
 	os.Exit(run())
 }
