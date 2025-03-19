@@ -1,4 +1,4 @@
-module github.com/fumiya-kume/mdefaults/v2
+module github.com/fumiya-kume/mdefaults
 
 go 1.23
 
