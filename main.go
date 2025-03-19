@@ -10,6 +10,8 @@ import (
 	"github.com/fatih/color"
 	"github.com/fumiya-kume/mdefaults/internal/config"
 	"github.com/fumiya-kume/mdefaults/internal/filesystem"
+	pullop "github.com/fumiya-kume/mdefaults/internal/operation/pull"
+	pushop "github.com/fumiya-kume/mdefaults/internal/operation/push"
 )
 
 var (
@@ -71,7 +73,7 @@ func run() int {
 		fmt.Println("Current Configuration:")
 		printConfigs(configs)
 		fmt.Println("macOS Configuration:")
-		macOSConfigs, err := pull(configs)
+		macOSConfigs, err := pullop.Pull(configs)
 		if err != nil {
 			printError("Failed to pull configurations")
 			return 1
@@ -134,7 +136,7 @@ func printSuccess(message string) {
 }
 
 func handlePush(configs []config.Config) int {
-	push(configs)
+	pushop.Push(configs)
 	printSuccess("Configurations pushed successfully")
 	return 0
 }
