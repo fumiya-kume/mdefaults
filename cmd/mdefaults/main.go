@@ -53,7 +53,10 @@ func run() int {
 	command := os.Args[1]
 
 	// Parse flags after the command
-	flag.CommandLine.Parse(os.Args[2:])
+	if err := flag.CommandLine.Parse(os.Args[2:]); err != nil {
+		log.Printf("Failed to parse command line arguments: %v", err)
+		return 1
+	}
 
 	fs := filesystem.NewOSFileSystem()
 	if err := filesystem.CreateConfigFileIfMissing(fs); err != nil {
