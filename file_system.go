@@ -52,3 +52,8 @@ func createConfigFileIfMissing(fs FileSystem) error {
 	}
 	return nil
 }
+
+// readConfigFileString reads the config file and returns its content as a string
+func readConfigFileString(fs FileSystem) (string, error) {
+	return fs.ReadFile(config.ConfigFilePath)
+}

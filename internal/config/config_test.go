@@ -1,24 +1,22 @@
-package main
+package config
 
 import (
 	"errors"
 	"strings"
 	"testing"
-
-	"github.com/fumiya-kume/mdefaults/internal/config"
 )
 
 func TestReadConfigFile_Success(t *testing.T) {
-	fs := &MockFileSystem{homeDir: "/mock/home", statError: nil, createErr: nil, configFileContent: "com.apple.dock autohide 1\ncom.apple.finder ShowPathbar true\n"}
+	fs := &MockFileSystem{HomeDir: "/mock/home", StatError: nil, CreateErr: nil, ConfigFileContent: "com.apple.dock autohide 1\ncom.apple.finder ShowPathbar true\n"}
 
-	configs, err := config.ReadConfigFile(fs)
+	configs, err := ReadConfigFile(fs)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
 	value1 := "1"
 	value2 := "true"
-	expectedConfigs := []config.Config{
+	expectedConfigs := []Config{
 		{Domain: "com.apple.dock", Key: "autohide", Value: &value1},
 		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: &value2},
 	}
@@ -41,9 +39,9 @@ func TestReadConfigFile_Success(t *testing.T) {
 }
 
 func TestReadConfigFile_Error(t *testing.T) {
-	fs := &MockFileSystem{statError: errors.New("read error")}
+	fs := &MockFileSystem{StatError: errors.New("read error")}
 
-	_, err := config.ReadConfigFile(fs)
+	_, err := ReadConfigFile(fs)
 	if err == nil {
 		t.Fatal("Expected error, got nil")
 	}
@@ -56,13 +54,13 @@ func TestReadConfigFile_Error(t *testing.T) {
 func TestGenerateConfigFileContent(t *testing.T) {
 	value1 := "1"
 	value2 := "true"
-	configs := []config.Config{
+	configs := []Config{
 		{Domain: "com.apple.dock", Key: "autohide", Value: &value1},
 		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: &value2},
 	}
 
 	expectedContent := "com.apple.dock autohide 1\ncom.apple.finder ShowPathbar true\n"
-	content := config.GenerateConfigFileContent(configs)
+	content := GenerateConfigFileContent(configs)
 
 	if content != expectedContent {
 		t.Errorf("Expected content %q, got %q", expectedContent, content)
@@ -70,10 +68,10 @@ func TestGenerateConfigFileContent(t *testing.T) {
 }
 
 func TestGenerateConfigFileContent_Empty(t *testing.T) {
-	configs := []config.Config{}
+	configs := []Config{}
 
 	expectedContent := ""
-	content := config.GenerateConfigFileContent(configs)
+	content := GenerateConfigFileContent(configs)
 
 	if content != expectedContent {
 		t.Errorf("Expected content %q, got %q", expectedContent, content)
@@ -82,46 +80,46 @@ func TestGenerateConfigFileContent_Empty(t *testing.T) {
 
 func TestWriteConfigFile_Success(t *testing.T) {
 	mockFS := &MockFileSystem{
-		homeDir:          "/mock/home",
-		writeFileContent: "",
-		writeFileErr:     nil,
+		HomeDir:          "/mock/home",
+		WriteFileContent: "",
+		WriteFileErr:     nil,
 	}
 	value1 := "1"
 	value2 := "true"
 
-	configs := []config.Config{
+	configs := []Config{
 		{Domain: "com.apple.dock", Key: "autohide", Value: &value1},
 		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: &value2},
 	}
 
-	err := config.WriteConfigFile(mockFS, configs)
+	err := WriteConfigFile(mockFS, configs)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
 	expectedContent := "com.apple.dock autohide 1\ncom.apple.finder ShowPathbar true\n"
-	if mockFS.writeFileContent != expectedContent {
-		t.Errorf("Expected writeFileContent %q, got %q", expectedContent, mockFS.writeFileContent)
+	if mockFS.WriteFileContent != expectedContent {
+		t.Errorf("Expected WriteFileContent %q, got %q", expectedContent, mockFS.WriteFileContent)
 	}
 }
 
 func TestWriteConfigFile_Error(t *testing.T) {
 	mockFS := &MockFileSystem{
-		homeDir:      "/mock/home",
-		writeFileErr: errors.New("write error"),
+		HomeDir:      "/mock/home",
+		WriteFileErr: errors.New("write error"),
 	}
 
 	value1 := "1"
-	configs := []config.Config{
+	configs := []Config{
 		{Domain: "com.apple.dock", Key: "autohide", Value: &value1},
 	}
 
-	err := config.WriteConfigFile(mockFS, configs)
+	err := WriteConfigFile(mockFS, configs)
 	if err == nil {
 		t.Fatal("Expected error, got nil")
 	}
 
-	if !errors.Is(err, mockFS.writeFileErr) {
-		t.Errorf("Expected error %v, got %v", mockFS.writeFileErr, err)
+	if !errors.Is(err, mockFS.WriteFileErr) {
+		t.Errorf("Expected error %v, got %v", mockFS.WriteFileErr, err)
 	}
 }
