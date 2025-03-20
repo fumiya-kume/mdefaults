@@ -8,6 +8,7 @@ import (
 	"github.com/fumiya-kume/mdefaults/internal/defaults"
 )
 
+// Push writes the provided configurations to the system defaults.
 func Push(configs []config.Config) {
 	for _, cfg := range configs {
 		if cfg.Value == nil {

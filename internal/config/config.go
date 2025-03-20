@@ -15,6 +15,7 @@ type Config struct {
 	Value  *string
 }
 
+// ConfigFilePath is the default path for the configuration file.
 var ConfigFilePath = filepath.Join(os.Getenv("HOME"), ".mdefaults")
 
 // FileSystemReader is a minimal interface for file system operations needed by config package
