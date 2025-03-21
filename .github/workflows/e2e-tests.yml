@@ -22,4 +22,4 @@ jobs:
 
     - name: Run E2E Tests
       run: |
-        go run ./test/e2e/run_tests.go
+        go run ./test/e2e/run_tests.go --verbose
