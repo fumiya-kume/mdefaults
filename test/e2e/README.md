@@ -64,12 +64,6 @@ The Docker setup is primarily useful for building and testing the application, n
 The e2e tests must be run on a macOS system:
 
 ```bash
-./run_tests.sh
-```
-
-or
-
-```bash
 go run run_tests.go
 ```
 
@@ -98,7 +92,7 @@ jobs:
     - name: Build
       run: go build -o mdefaults ./cmd/mdefaults
     - name: Run E2E Tests
-      run: ./test/e2e/run_tests.sh
+      run: go run ./test/e2e/run_tests.go
 ```
 
 This workflow will run the e2e tests on a macOS runner in GitHub Actions.
