@@ -5,9 +5,9 @@ name: Go
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ '*' ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ '*' ]
 
 jobs:
 
@@ -15,6 +15,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+
+    - name: Get branch name
+      id: branch-name-build
+      run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
+
+    - name: Use go get with current branch if not master
+      run: |
+        BRANCH_NAME="${{ steps.branch-name-build.outputs.branch }}"
+        if [ "$BRANCH_NAME" != "master" ]; then
+          go get github.com/fumiya-kume/mdefaults@$BRANCH_NAME
+        fi
 
     - name: Set up Go
       uses: actions/setup-go@v4
@@ -38,6 +49,17 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Get branch name
+      id: branch-name-test
+      run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
+
+    - name: Use go get with current branch if not master
+      run: |
+        BRANCH_NAME="${{ steps.branch-name-test.outputs.branch }}"
+        if [ "$BRANCH_NAME" != "master" ]; then
+          go get github.com/fumiya-kume/mdefaults@$BRANCH_NAME
+        fi
+
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
@@ -51,6 +73,17 @@ jobs:
     needs: build
     steps:
     - uses: actions/checkout@v4
+
+    - name: Get branch name
+      id: branch-name-lint
+      run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
+
+    - name: Use go get with current branch if not master
+      run: |
+        BRANCH_NAME="${{ steps.branch-name-lint.outputs.branch }}"
+        if [ "$BRANCH_NAME" != "master" ]; then
+          go get github.com/fumiya-kume/mdefaults@$BRANCH_NAME
+        fi
 
     - name: Set up Go
       uses: actions/setup-go@v4

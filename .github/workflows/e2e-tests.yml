@@ -2,15 +2,26 @@ name: E2E Tests
 
 on:
   push:
-    branches: [ master ]
+    branches: [ '*' ]
   pull_request:
-    branches: [ master ]
+    branches: [ '*' ]
 
 jobs:
   e2e-tests:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v3
+
+    - name: Get branch name
+      id: branch-name
+      run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
+
+    - name: Use go get with current branch if not master
+      run: |
+        BRANCH_NAME="${{ steps.branch-name.outputs.branch }}"
+        if [ "$BRANCH_NAME" != "master" ]; then
+          go get github.com/fumiya-kume/mdefaults@$BRANCH_NAME
+        fi
 
     - name: Set up Go
       uses: actions/setup-go@v4
