@@ -9,10 +9,10 @@ This directory contains end-to-end tests for the mdefaults tool. These tests ver
 
 ## Running the Tests
 
-You can run the tests using the provided shell script:
+You can run the tests using the provided Go script:
 
 ```bash
-./run_tests.sh
+go run run_tests.go
 ```
 
 This script will:

@@ -11,16 +11,15 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
         go-version: '1.23'
-    
+
     - name: Build
       run: go build -o mdefaults ./cmd/mdefaults
-    
+
     - name: Run E2E Tests
       run: |
-        chmod +x ./test/e2e/run_tests.sh
-        ./test/e2e/run_tests.sh
+        go run ./test/e2e/run_tests.go
