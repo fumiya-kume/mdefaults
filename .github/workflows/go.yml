@@ -18,7 +18,12 @@ jobs:
 
     - name: Get branch name
       id: branch-name-build
-      run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
+      run: |
+        if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
+          echo "::set-output name=branch::$GITHUB_HEAD_REF"
+        else
+          echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
+        fi
 
     - name: Set up Go
       uses: actions/setup-go@v4
@@ -51,7 +56,12 @@ jobs:
 
     - name: Get branch name
       id: branch-name-test
-      run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
+      run: |
+        if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
+          echo "::set-output name=branch::$GITHUB_HEAD_REF"
+        else
+          echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
+        fi
 
     - name: Set up Go
       uses: actions/setup-go@v4
@@ -76,7 +86,12 @@ jobs:
 
     - name: Get branch name
       id: branch-name-lint
-      run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
+      run: |
+        if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
+          echo "::set-output name=branch::$GITHUB_HEAD_REF"
+        else
+          echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
+        fi
 
     - name: Set up Go
       uses: actions/setup-go@v4
