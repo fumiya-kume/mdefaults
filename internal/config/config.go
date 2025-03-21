@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	apperrors "github.com/fumiya-kume/mdefaults/internal/errors"
 )
 
 // Config represents a configuration entry with domain, key, and value.
@@ -28,7 +30,7 @@ type FileSystemReader interface {
 func ReadConfigFile(fs FileSystemReader) ([]Config, error) {
 	content, err := fs.ReadFile(ConfigFilePath)
 	if err != nil {
-		return nil, err
+		return nil, apperrors.Wrap(err, apperrors.ConfigParseError, fmt.Sprintf("failed to read config file: %s", ConfigFilePath))
 	}
 	configs := []Config{}
 	for _, line := range strings.Split(content, "\n") {
@@ -60,5 +62,9 @@ func GenerateConfigFileContent(configs []Config) string {
 // WriteConfigFile writes the configs to the configuration file.
 func WriteConfigFile(fs FileSystemReader, configs []Config) error {
 	content := GenerateConfigFileContent(configs)
-	return fs.WriteFile(ConfigFilePath, content)
+	err := fs.WriteFile(ConfigFilePath, content)
+	if err != nil {
+		return apperrors.Wrap(err, apperrors.ConfigWriteError, fmt.Sprintf("failed to write config file: %s", ConfigFilePath))
+	}
+	return nil
 }
