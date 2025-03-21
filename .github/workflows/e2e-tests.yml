@@ -12,26 +12,13 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Get branch name
-      id: branch-name
-      run: |
-        if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
-          echo "::set-output name=branch::$GITHUB_HEAD_REF"
-        else
-          echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
-        fi
-
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
         go-version: '1.23'
 
-    - name: Use go get with current branch if not master
-      run: |
-        BRANCH_NAME="${{ steps.branch-name.outputs.branch }}"
-        if [ "$BRANCH_NAME" != "master" ]; then
-          go get github.com/fumiya-kume/mdefaults@$BRANCH_NAME
-        fi
+    - name: Get dependencies
+      run: go mod tidy
 
     - name: Build
       run: go build -o mdefaults ./cmd/mdefaults

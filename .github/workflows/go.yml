@@ -16,26 +16,13 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Get branch name
-      id: branch-name-build
-      run: |
-        if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
-          echo "::set-output name=branch::$GITHUB_HEAD_REF"
-        else
-          echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
-        fi
-
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
         go-version-file: 'go.mod'
 
-    - name: Use go get with current branch if not master
-      run: |
-        BRANCH_NAME="${{ steps.branch-name-build.outputs.branch }}"
-        if [ "$BRANCH_NAME" != "master" ]; then
-          go get github.com/fumiya-kume/mdefaults@$BRANCH_NAME
-        fi
+    - name: Get dependencies
+      run: go mod tidy
 
     - name: Cache Go modules
       uses: actions/cache@v3
@@ -54,26 +41,13 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Get branch name
-      id: branch-name-test
-      run: |
-        if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
-          echo "::set-output name=branch::$GITHUB_HEAD_REF"
-        else
-          echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
-        fi
-
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
         go-version-file: 'go.mod'
 
-    - name: Use go get with current branch if not master
-      run: |
-        BRANCH_NAME="${{ steps.branch-name-test.outputs.branch }}"
-        if [ "$BRANCH_NAME" != "master" ]; then
-          go get github.com/fumiya-kume/mdefaults@$BRANCH_NAME
-        fi
+    - name: Get dependencies
+      run: go mod tidy
 
     - name: Test
       run: go test -v ./...
@@ -84,26 +58,13 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Get branch name
-      id: branch-name-lint
-      run: |
-        if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
-          echo "::set-output name=branch::$GITHUB_HEAD_REF"
-        else
-          echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
-        fi
-
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
         go-version-file: 'go.mod'
 
-    - name: Use go get with current branch if not master
-      run: |
-        BRANCH_NAME="${{ steps.branch-name-lint.outputs.branch }}"
-        if [ "$BRANCH_NAME" != "master" ]; then
-          go get github.com/fumiya-kume/mdefaults@$BRANCH_NAME
-        fi
+    - name: Get dependencies
+      run: go mod tidy
 
     - name: Install golangci-lint
       run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
