@@ -20,17 +20,17 @@ jobs:
       id: branch-name-build
       run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
 
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version-file: 'go.mod'
+
     - name: Use go get with current branch if not master
       run: |
         BRANCH_NAME="${{ steps.branch-name-build.outputs.branch }}"
         if [ "$BRANCH_NAME" != "master" ]; then
           go get github.com/fumiya-kume/mdefaults@$BRANCH_NAME
         fi
-
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version-file: 'go.mod'
 
     - name: Cache Go modules
       uses: actions/cache@v3
@@ -53,17 +53,17 @@ jobs:
       id: branch-name-test
       run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
 
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version-file: 'go.mod'
+
     - name: Use go get with current branch if not master
       run: |
         BRANCH_NAME="${{ steps.branch-name-test.outputs.branch }}"
         if [ "$BRANCH_NAME" != "master" ]; then
           go get github.com/fumiya-kume/mdefaults@$BRANCH_NAME
         fi
-
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version-file: 'go.mod'
 
     - name: Test
       run: go test -v ./...
@@ -78,17 +78,17 @@ jobs:
       id: branch-name-lint
       run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
 
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version-file: 'go.mod'
+
     - name: Use go get with current branch if not master
       run: |
         BRANCH_NAME="${{ steps.branch-name-lint.outputs.branch }}"
         if [ "$BRANCH_NAME" != "master" ]; then
           go get github.com/fumiya-kume/mdefaults@$BRANCH_NAME
         fi
-
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version-file: 'go.mod'
 
     - name: Install golangci-lint
       run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
