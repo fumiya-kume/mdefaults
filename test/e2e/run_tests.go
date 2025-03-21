@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -10,7 +11,17 @@ import (
 	"strings"
 )
 
+var (
+	verboseFlag bool
+)
+
 func main() {
+	// Define command line flags
+	flag.BoolVar(&verboseFlag, "verbose", false, "Enable verbose logging")
+
+	// Parse command line flags
+	flag.Parse()
+
 	fmt.Println("Starting mdefaults e2e tests")
 
 	// Check if running on macOS
@@ -66,8 +77,9 @@ func main() {
 	// If the binary doesn't exist, try to build it
 	if _, err := os.Stat(mdefaultsBin); os.IsNotExist(err) {
 		fmt.Println("mdefaults binary not found, building it")
+		buildDir := filepath.Join(scriptDir, "..", "..")
 		cmd := exec.Command("go", "build", "-o", "mdefaults", "./cmd/mdefaults")
-		cmd.Dir = filepath.Join(scriptDir, "..", "..")
+		cmd.Dir = buildDir
 		if err := cmd.Run(); err != nil {
 			log.Fatalf("Failed to build mdefaults: %v", err)
 		}
@@ -77,13 +89,20 @@ func main() {
 	// Test 1: Create a test configuration file
 	fmt.Println("Test 1: Creating test configuration file")
 	configContent := "com.apple.dock autohide\ncom.apple.finder ShowPathbar\n"
-	if err := os.WriteFile(filepath.Join(configDir, "config"), []byte(configContent), 0644); err != nil {
+	configFile := filepath.Join(configDir, "config")
+	if err := os.WriteFile(configFile, []byte(configContent), 0644); err != nil {
 		log.Fatalf("Failed to create config file: %v", err)
 	}
 
 	// Test 2: Run mdefaults pull
 	fmt.Println("Test 2: Running mdefaults pull")
-	cmd := exec.Command(mdefaultsBin, "pull", "-y")
+	var args []string
+	if verboseFlag {
+		args = []string{"pull", "-y", "--verbose"}
+	} else {
+		args = []string{"pull", "-y"}
+	}
+	cmd := exec.Command(mdefaultsBin, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
@@ -91,7 +110,7 @@ func main() {
 	}
 
 	// Verify the configuration file was updated
-	if _, err := os.Stat(filepath.Join(configDir, "config")); os.IsNotExist(err) {
+	if _, err := os.Stat(configFile); os.IsNotExist(err) {
 		fmt.Println("Error: Configuration file not found after pull")
 		os.Exit(1)
 	}
@@ -116,13 +135,17 @@ func main() {
 
 	// Update the configuration file
 	configContent = fmt.Sprintf("com.apple.dock autohide %s\ncom.apple.finder ShowPathbar\n", newAutohide)
-	if err := os.WriteFile(filepath.Join(configDir, "config"), []byte(configContent), 0644); err != nil {
+	if err := os.WriteFile(configFile, []byte(configContent), 0644); err != nil {
 		log.Fatalf("Failed to update config file: %v", err)
 	}
 
 	// Test 4: Run mdefaults push
 	fmt.Println("Test 4: Running mdefaults push")
-	cmd = exec.Command(mdefaultsBin, "push")
+	if verboseFlag {
+		cmd = exec.Command(mdefaultsBin, "push", "--verbose")
+	} else {
+		cmd = exec.Command(mdefaultsBin, "push")
+	}
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
@@ -148,11 +171,15 @@ func main() {
 	// Test 5: Restore original value
 	fmt.Println("Test 5: Restoring original value")
 	configContent = fmt.Sprintf("com.apple.dock autohide %s\ncom.apple.finder ShowPathbar\n", originalAutohide)
-	if err := os.WriteFile(filepath.Join(configDir, "config"), []byte(configContent), 0644); err != nil {
+	if err := os.WriteFile(configFile, []byte(configContent), 0644); err != nil {
 		log.Fatalf("Failed to update config file: %v", err)
 	}
 
-	cmd = exec.Command(mdefaultsBin, "push")
+	if verboseFlag {
+		cmd = exec.Command(mdefaultsBin, "push", "--verbose")
+	} else {
+		cmd = exec.Command(mdefaultsBin, "push")
+	}
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {

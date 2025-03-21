@@ -15,6 +15,7 @@ You can run the tests using the provided Go script:
 go run run_tests.go
 ```
 
+
 This script will:
 1. Check if it's running on macOS
 2. Set up a test environment
@@ -30,26 +31,46 @@ This script will:
 
 ## Docker Support
 
-A Dockerfile is provided to build the mdefaults binary for macOS. However, the tests themselves must be run on a macOS system, as Docker doesn't support running macOS containers.
+A Dockerfile is provided to build and run the mdefaults application in Docker. However, since mdefaults is designed for macOS and uses macOS-specific commands, running it in Docker (which uses Linux) has limitations.
 
-To build the Docker image:
+### Running mdefaults in Docker
+
+To build and run mdefaults in Docker, use the provided script:
 
 ```bash
-docker build -t mdefaults-e2e -f test/e2e/Dockerfile .
+./docker-run.sh [command] [flags]
 ```
 
-This will create a Docker image with the mdefaults binary built for macOS. You can then copy the binary from the Docker image to your macOS system:
+For example:
 
 ```bash
-docker create --name mdefaults-container mdefaults-e2e
-docker cp mdefaults-container:/app/mdefaults .
-docker rm mdefaults-container
+./docker-run.sh --version
+./docker-run.sh --help
 ```
 
-Then run the tests on your macOS system:
+This script will:
+1. Build a Docker image with the mdefaults application
+2. Run the Docker container with the specified command and flags
+
+### Limitations
+
+The Docker setup is primarily useful for building and testing the application, not for managing macOS configurations. The following limitations apply:
+
+1. macOS-specific commands (like `defaults read` and `defaults write`) won't work in Docker
+2. The e2e tests must be run on a macOS system, not in Docker
+
+### Running Tests
+
+The e2e tests must be run on a macOS system:
 
 ```bash
-./test/e2e/run_tests.sh
+./run_tests.sh
+```
+
+or
+
+```bash
+go run run_tests.go
 ```
 
 ## GitHub Actions

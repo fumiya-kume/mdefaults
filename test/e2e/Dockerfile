@@ -1,4 +1,4 @@
-FROM golang:1.23-alpine AS builder
+FROM golang:1.22-alpine AS builder
 
 WORKDIR /app
 
@@ -12,9 +12,9 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o mdefaults ./cmd/mdefaults
+RUN CGO_ENABLED=0 go build -o mdefaults ./cmd/mdefaults
 
-# Create a minimal image for testing
+# Create a minimal image for running the application
 FROM alpine:latest
 
 WORKDIR /app
@@ -22,11 +22,5 @@ WORKDIR /app
 # Copy the built binary from the builder stage
 COPY --from=builder /app/mdefaults /app/mdefaults
 
-# Copy the e2e test scripts
-COPY test/e2e/*.sh /app/
-
-# Make the scripts executable
-RUN chmod +x /app/*.sh
-
-# Set the entrypoint to the test script
-ENTRYPOINT ["/app/run_tests.sh"]
+# Set the entrypoint to the mdefaults binary
+ENTRYPOINT ["/app/mdefaults"]
