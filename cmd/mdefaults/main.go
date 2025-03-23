@@ -9,6 +9,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/fumiya-kume/mdefaults/internal/config"
+	apperrors "github.com/fumiya-kume/mdefaults/internal/errors"
 	"github.com/fumiya-kume/mdefaults/internal/filesystem"
 	pullop "github.com/fumiya-kume/mdefaults/internal/operation/pull"
 	pushop "github.com/fumiya-kume/mdefaults/internal/operation/push"
@@ -23,7 +24,8 @@ var (
 func setupLogging() {
 	logFile, err := os.OpenFile("mdefaults.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
-		log.Fatalf("Failed to open log file: %v", err)
+		code := apperrors.GetErrorCode(err)
+		log.Fatalf("[ERROR-%04d] Failed to open log file: %v", code, err)
 	}
 	log.SetOutput(logFile)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -39,17 +41,20 @@ func run() int {
 
 	// Parse flags after the command
 	if err := flag.CommandLine.Parse(os.Args[2:]); err != nil {
-		log.Printf("Failed to parse command line arguments: %v", err)
+		code := apperrors.GetErrorCode(err)
+		log.Printf("[ERROR-%04d] Failed to parse command line arguments: %v", code, err)
 		return 1
 	}
 
 	fs := filesystem.NewOSFileSystem()
 	if err := filesystem.CreateConfigFileIfMissing(fs); err != nil {
-		log.Printf("Failed to create config file: %v", err)
+		code := apperrors.GetErrorCode(err)
+		log.Printf("[ERROR-%04d] Failed to create config file: %v", code, err)
 	}
 	configs, err := config.ReadConfigFile(fs)
 	if err != nil {
-		log.Printf("Failed to read config file: %v", err)
+		code := apperrors.GetErrorCode(err)
+		log.Printf("[ERROR-%04d] Failed to read config file: %v", code, err)
 		return 1
 	}
 
@@ -65,7 +70,8 @@ func run() int {
 		fmt.Println("macOS Configuration:")
 		macOSConfigs, err := pullop.Pull(configs)
 		if err != nil {
-			printer.PrintError("Failed to pull configurations")
+			code := apperrors.GetErrorCode(err)
+			printer.PrintError(fmt.Sprintf("[ERROR-%04d] Failed to pull configurations: %v", code, err))
 			return 1
 		}
 		printConfigs(macOSConfigs)
@@ -75,7 +81,8 @@ func run() int {
 			fmt.Print("Do you want to continue? (yes/no): ")
 			var response string
 			if _, err := fmt.Scanln(&response); err != nil {
-				fmt.Println("Failed to read input, operation cancelled.")
+				code := apperrors.GetErrorCode(err)
+				fmt.Printf("[ERROR-%04d] Failed to read input, operation cancelled: %v\n", code, err)
 				return 1
 			}
 			if response != "yes" {
@@ -86,7 +93,8 @@ func run() int {
 
 		printer.PrintSuccess("Configurations pulled successfully")
 		if err := config.WriteConfigFile(fs, macOSConfigs); err != nil {
-			log.Printf("Failed to write config file: %v", err)
+			code := apperrors.GetErrorCode(err)
+			log.Printf("[ERROR-%04d] Failed to write config file: %v", code, err)
 			return 1
 		}
 		return 0
@@ -98,7 +106,7 @@ func run() int {
 		// Add more debug information here
 		return 0
 	default:
-		log.Println("Error: Unknown command")
+		log.Printf("[ERROR-%04d] Unknown command: %s", apperrors.InvalidArgument, command)
 		return 1
 	}
 }

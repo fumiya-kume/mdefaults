@@ -96,8 +96,8 @@ func TestPull_InvalidConfig(t *testing.T) {
 	}
 
 	updatedConfigs, err := PullImpl(defaultsCmds)
-	if err != nil {
-		t.Errorf("Expected nil error, got %v", err)
+	if err == nil {
+		t.Errorf("Expected an error, got nil")
 	}
 	if len(updatedConfigs) != 0 {
 		t.Errorf("Expected 0 configs, got %d", len(updatedConfigs))
@@ -125,8 +125,8 @@ func TestPull_ErrorHandling(t *testing.T) {
 	}
 
 	updatedConfigs, err := PullImpl(defaultsCmds)
-	if err != nil {
-		t.Errorf("Expected nil error, got %v", err)
+	if err == nil {
+		t.Errorf("Expected an error, got nil")
 	}
 	if len(updatedConfigs) != 0 {
 		t.Errorf("Expected 0 configs, got %d", len(updatedConfigs))
