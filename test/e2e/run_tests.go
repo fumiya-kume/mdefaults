@@ -36,33 +36,28 @@ func main() {
 		log.Fatalf("Failed to create temp directory: %v", err)
 	}
 
-	configDir := filepath.Join(os.Getenv("HOME"), ".mdefaults")
-	backupDir := filepath.Join(os.Getenv("HOME"), ".mdefaults.backup")
+	// configFile is the path to the mdefaults config file
+	configFile := filepath.Join(os.Getenv("HOME"), ".mdefaults")
+	// backupFile is the backup of the original config
+	backupFile := configFile + ".backup"
 
 	// Backup existing configuration if it exists
-	if _, err := os.Stat(configDir); err == nil {
+	if _, err := os.Stat(configFile); err == nil {
 		fmt.Println("Backing up existing configuration")
-		if err := os.Rename(configDir, backupDir); err != nil {
+		if err := os.Rename(configFile, backupFile); err != nil {
 			log.Fatalf("Failed to backup configuration: %v", err)
 		}
 	}
-
-	// Create test configuration directory
-	if err := os.MkdirAll(configDir, 0755); err != nil {
-		log.Fatalf("Failed to create config directory: %v", err)
-	}
-
 	// Register cleanup function to run on exit
 	defer func() {
 		fmt.Println("Cleaning up test environment")
- 		_ = os.RemoveAll(testDir)
- 		_ = os.Remove(filepath.Join(configDir, "config"))
+		_ = os.RemoveAll(testDir)
+		_ = os.Remove(configFile)
 
 		// Restore backup if it exists
- 		if _, err := os.Stat(backupDir); err == nil {
- 			_ = os.RemoveAll(configDir)
- 			_ = os.Rename(backupDir, configDir)
- 		}
+		if _, err := os.Stat(backupFile); err == nil {
+			_ = os.Rename(backupFile, configFile)
+		}
 
 		fmt.Println("Cleanup complete")
 	}()
@@ -89,7 +84,6 @@ func main() {
 	// Test 1: Create a test configuration file
 	fmt.Println("Test 1: Creating test configuration file")
 	configContent := "com.apple.dock autohide\ncom.apple.finder ShowPathbar\n"
-	configFile := filepath.Join(configDir, "config")
 	if err := os.WriteFile(configFile, []byte(configContent), 0644); err != nil {
 		log.Fatalf("Failed to create config file: %v", err)
 	}
