@@ -111,13 +111,16 @@ func main() {
 
 	// Test 3: Modify the configuration file
 	fmt.Println("Test 3: Modifying configuration file")
-	// Save the original value of autohide
+	// Save the original value of autohide (default to '0' if not set)
 	cmd = exec.Command("defaults", "read", "com.apple.dock", "autohide")
 	output, err := cmd.Output()
+	var originalAutohide string
 	if err != nil {
-		log.Fatalf("Failed to read dock autohide value: %v", err)
+		log.Printf("Warning: Failed to read dock autohide value: %v. Defaulting to 0", err)
+		originalAutohide = "0"
+	} else {
+		originalAutohide = strings.TrimSpace(string(output))
 	}
-	originalAutohide := strings.TrimSpace(string(output))
 
 	// Toggle the value
 	var newAutohide string
