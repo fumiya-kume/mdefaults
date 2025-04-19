@@ -68,13 +68,14 @@ func run() int {
 		fmt.Println("Current Configuration:")
 		printConfigs(configs)
 		fmt.Println("macOS Configuration:")
-		macOSConfigs, err := pullop.Pull(configs)
-		if err != nil {
-			code := apperrors.GetErrorCode(err)
-			printer.PrintError(fmt.Sprintf("[ERROR-%04d] Failed to pull configurations: %v", code, err))
-			return 1
-		}
+		macOSConfigs, pullErr := pullop.Pull(configs)
+		// Print any configs we were able to pull
 		printConfigs(macOSConfigs)
+		// Report if any pulls failed, but continue
+		if pullErr != nil {
+			code := apperrors.GetErrorCode(pullErr)
+			printer.PrintError(fmt.Sprintf("[ERROR-%04d] Some configurations failed to pull: %v", code, pullErr))
+		}
 
 		if !yesFlag {
 			color.Yellow("Warning: mdefaults will override your configuration file (~/.mdefaults). Proceed with caution.")
