@@ -83,7 +83,7 @@ func main() {
 
 	// Test 1: Create a test configuration file
 	fmt.Println("Test 1: Creating test configuration file")
-	configContent := "com.apple.dock autohide\ncom.apple.finder ShowPathbar\n"
+	configContent := "com.apple.dock autohide\ncom.apple.finder ShowStatusBar\n"
 	if err := os.WriteFile(configFile, []byte(configContent), 0644); err != nil {
 		log.Fatalf("Failed to create config file: %v", err)
 	}
@@ -128,7 +128,7 @@ func main() {
 	}
 
 	// Update the configuration file
-	configContent = fmt.Sprintf("com.apple.dock autohide %s\ncom.apple.finder ShowPathbar\n", newAutohide)
+	configContent = fmt.Sprintf("com.apple.dock autohide %s\ncom.apple.finder ShowStatusBar\n", newAutohide)
 	if err := os.WriteFile(configFile, []byte(configContent), 0644); err != nil {
 		log.Fatalf("Failed to update config file: %v", err)
 	}
@@ -164,7 +164,7 @@ func main() {
 
 	// Test 5: Restore original value
 	fmt.Println("Test 5: Restoring original value")
-	configContent = fmt.Sprintf("com.apple.dock autohide %s\ncom.apple.finder ShowPathbar\n", originalAutohide)
+	configContent = fmt.Sprintf("com.apple.dock autohide %s\ncom.apple.finder ShowStatusBar\n", originalAutohide)
 	if err := os.WriteFile(configFile, []byte(configContent), 0644); err != nil {
 		log.Fatalf("Failed to update config file: %v", err)
 	}
