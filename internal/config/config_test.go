@@ -46,8 +46,9 @@ func TestReadConfigFile_Error(t *testing.T) {
 		t.Fatal("Expected error, got nil")
 	}
 
-	if !strings.Contains(err.Error(), "read error") {
-		t.Errorf("Expected error to contain 'read error', got %v", err)
+	// Check that the error message contains both the error code and the original error
+	if !strings.Contains(err.Error(), "ERROR-") || !strings.Contains(err.Error(), "read error") {
+		t.Errorf("Expected error to contain error code and 'read error', got %v", err)
 	}
 }
 
@@ -119,8 +120,9 @@ func TestWriteConfigFile_Error(t *testing.T) {
 		t.Fatal("Expected error, got nil")
 	}
 
-	if !errors.Is(err, mockFS.WriteFileErr) {
-		t.Errorf("Expected error %v, got %v", mockFS.WriteFileErr, err)
+	// Check that the error message contains both the error code and the original error
+	if !strings.Contains(err.Error(), "ERROR-") || !strings.Contains(err.Error(), "write error") {
+		t.Errorf("Expected error to contain error code and 'write error', got %v", err)
 	}
 }
 

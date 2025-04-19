@@ -25,4 +25,5 @@ go.work.sum
 .env
 
 @todo.txt
-mdefaults
+/mdefaults
+/mdefaults.log
