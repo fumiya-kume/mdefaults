@@ -4,37 +4,6 @@ mdefaults is a tool for Configuration as Code (CaC) for macOS. It allows you to 
 
 https://github.com/user-attachments/assets/de6fe801-e8e1-400f-bbae-f3fdd9abb0a6
 
-## How to Execute
-
-### Building from Source
-
-To build the program from source, run:
-
-```bash
-go build -o mdefaults ./cmd/mdefaults
-```
-
-This will create an executable file named `mdefaults` in the current directory.
-
-### Running the Program
-
-To run the program, use:
-
-```bash
-./mdefaults [command] [flags]
-```
-
-For example:
-
-```bash
-./mdefaults pull
-./mdefaults push
-./mdefaults --verbose pull
-./mdefaults pull -y
-```
-
-See the [Usage](#usage) section below for more details on available commands and flags.
-
 ## Usage
 
 ### Getting Started
@@ -64,6 +33,32 @@ com.apple.finder ShowPathbar
 
 Then execute `mdefaults pull` (get the current macOS configuration and save it to the file), `mdefaults push` (apply the configuration file to macOS).
 
+### Value Type Support
+
+mdefaults now supports preserving the original value types (boolean, integer, string, etc.) when reading from and writing to macOS defaults. This prevents issues that can occur when values are inadvertently stored as strings instead of their proper types.
+
+When you use `mdefaults pull`, the tool will automatically detect the proper type of each value and save it in the configuration file. The updated configuration format looks like this:
+
+```
+com.apple.AppleMultitouchTrackpad FirstClickThreshold -integer 1
+com.apple.AppleMultitouchTrackpad DragLock -boolean true
+com.apple.finder ShowPathbar -boolean true
+```
+
+Each line follows this format: `domain key -type value`
+
+Supported types include:
+- `-string`: Text values
+- `-int` or `-integer`: Integer values
+- `-float`: Floating point values
+- `-bool` or `-boolean`: Boolean values (true/false)
+- `-date`: Date values
+- `-data`: Binary data values
+- `-array`: Array values
+- `-dict`: Dictionary/object values
+
+When you use `mdefaults push`, the tool will use these type specifications to ensure values are written with their correct types.
+
 ### pull
 
 Pull the current macOS configuration that is written in the configuration file.
@@ -71,6 +66,11 @@ Pull the current macOS configuration that is written in the configuration file.
 ```
 mdefaults pull
 ```
+
+This command will:
+1. Read the config file at `~/.mdefaults`
+2. For each entry, read its current value and type from macOS defaults
+3. Update the config file with the current values and correct types
 
 ### push
 
@@ -80,10 +80,19 @@ Apply the configuration settings from the file to macOS.
 mdefaults push
 ```
 
+This command will write each configuration entry to macOS defaults using the type specified in the config file.
 
-### Command Line Flags
+### config
 
-#### Verbose Mode
+Print the configuration file content.
+
+```
+mdefaults config
+```
+
+This command reads the configuration file located in `~/.mdefaults` and prints its contents to the console.
+
+### Verbose Mode
 
 Enable verbose logging to get detailed information about the application's operations. This can be useful for debugging and understanding the application's behavior.
 
@@ -95,54 +104,33 @@ mdefaults --verbose pull
 
 This will provide additional log output in the console and write detailed logs to the `mdefaults.log` file.
 
-#### Version Information
-
-Print version and architecture information:
-
-```
-mdefaults --version
-```
-
-Or use the short form:
-
-```
-mdefaults -v
-```
-
-#### Auto-confirm
-
-Automatically confirm prompts (useful for scripting):
-
-```
-mdefaults pull -y
-```
-
-### Debug Mode
-
-Run the application in debug mode:
-
-```
-mdefaults debug
-```
-
-This command provides additional debugging information.
-
 ### Troubleshooting
 
 If you encounter any issues, please check the following:
 - Ensure the configuration file is correctly formatted.
 - Verify that `mdefaults` is installed correctly.
+- If macOS is crashing after login, check that your configuration values have the correct types specified.
 
 ### Contributing
 
 Contributions are welcome! Please fork the repository and submit a pull request.
 
-### Testing
+### Development
 
-The project includes both unit tests and end-to-end (e2e) tests:
+#### Testing
+The project includes both unit tests and E2E (End-to-End) tests. 
 
-- **Unit Tests**: Run with `go test ./...`
-- **E2E Tests**: Located in the `test/e2e` directory. These tests verify the tool's functionality in a real macOS environment. See the [E2E Tests README](test/e2e/README.md) for more information.
+To run only the unit tests:
+```
+go test -short ./...
+```
+
+To run all tests including E2E tests (requires running in CI environment):
+```
+go test ./...
+```
+
+Note: E2E tests are skipped by default when not running in a CI environment to prevent modifying your local macOS settings.
 
 ## Installation
 
@@ -150,6 +138,20 @@ The project includes both unit tests and end-to-end (e2e) tests:
 go install github.com/fumiya-kume/mdefaults
 ```
 
+## Docker
+
+You can build and run `mdefaults` in a Docker container without installing Go or Homebrew:
+
+```bash
+# Make the helper script executable
+chmod +x docker-run.sh
+
+# Build the Docker image and run a command
+./docker-run.sh pull -y
+./docker-run.sh push
+```
+
 ## License
 
 [GPL-3.0](LICENSE)
+
