@@ -157,7 +157,7 @@ func captureOutput(f func()) string {
 
 	f()
 
-	w.Close()
+		_ = w.Close()
 	var buf bytes.Buffer
 	if _, err := io.Copy(&buf, r); err != nil {
 		fmt.Printf("Failed to copy output: %v", err)

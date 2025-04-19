@@ -75,7 +75,9 @@ func CreateConfigFileIfMissing(fs FileSystem) error {
 		if err != nil {
 			return apperrors.Wrap(err, apperrors.FileWriteError, fmt.Sprintf("failed to create config file: %s", config.ConfigFilePath))
 		}
-		defer file.Close()
+		defer func() {
+			_ = file.Close()
+		}()
 	}
 	return nil
 }

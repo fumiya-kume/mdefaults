@@ -55,14 +55,14 @@ func main() {
 	// Register cleanup function to run on exit
 	defer func() {
 		fmt.Println("Cleaning up test environment")
-		os.RemoveAll(testDir)
-		os.Remove(filepath.Join(configDir, "config"))
+ 		_ = os.RemoveAll(testDir)
+ 		_ = os.Remove(filepath.Join(configDir, "config"))
 
 		// Restore backup if it exists
-		if _, err := os.Stat(backupDir); err == nil {
-			os.RemoveAll(configDir)
-			os.Rename(backupDir, configDir)
-		}
+ 		if _, err := os.Stat(backupDir); err == nil {
+ 			_ = os.RemoveAll(configDir)
+ 			_ = os.Rename(backupDir, configDir)
+ 		}
 
 		fmt.Println("Cleanup complete")
 	}()
