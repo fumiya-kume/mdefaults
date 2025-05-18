@@ -113,7 +113,11 @@ func printUsage() {
 
 func printConfigs(configs []config.Config) {
 	for _, cfg := range configs {
-		fmt.Printf("- %s %s %s\n", cfg.Domain, cfg.Key, *cfg.Value)
+		if cfg.Type != "" && cfg.Type != "string" {
+			fmt.Printf("- %s %s (%s) %s\n", cfg.Domain, cfg.Key, cfg.Type, *cfg.Value)
+		} else {
+			fmt.Printf("- %s %s %s\n", cfg.Domain, cfg.Key, *cfg.Value)
+		}
 	}
 }
 
