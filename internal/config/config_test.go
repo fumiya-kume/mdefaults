@@ -17,8 +17,8 @@ func TestReadConfigFile_Success(t *testing.T) {
 	value1 := "1"
 	value2 := "true"
 	expectedConfigs := []Config{
-		{Domain: "com.apple.dock", Key: "autohide", Value: &value1},
-		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: &value2},
+		{Domain: "com.apple.dock", Key: "autohide", Value: &value1, Type: "string"},
+		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: &value2, Type: "string"},
 	}
 
 	if len(configs) != len(expectedConfigs) {
@@ -55,8 +55,8 @@ func TestGenerateConfigFileContent(t *testing.T) {
 	value1 := "1"
 	value2 := "true"
 	configs := []Config{
-		{Domain: "com.apple.dock", Key: "autohide", Value: &value1},
-		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: &value2},
+		{Domain: "com.apple.dock", Key: "autohide", Value: &value1, Type: "string"},
+		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: &value2, Type: "string"},
 	}
 
 	expectedContent := "com.apple.dock autohide 1\ncom.apple.finder ShowPathbar true\n"
@@ -111,7 +111,7 @@ func TestWriteConfigFile_Error(t *testing.T) {
 
 	value1 := "1"
 	configs := []Config{
-		{Domain: "com.apple.dock", Key: "autohide", Value: &value1},
+		{Domain: "com.apple.dock", Key: "autohide", Value: &value1, Type: "string"},
 	}
 
 	err := WriteConfigFile(mockFS, configs)
@@ -121,6 +121,56 @@ func TestWriteConfigFile_Error(t *testing.T) {
 
 	if !errors.Is(err, mockFS.WriteFileErr) {
 		t.Errorf("Expected error %v, got %v", mockFS.WriteFileErr, err)
+	}
+}
+
+func TestReadConfigFile_WithTypesInConfig(t *testing.T) {
+	// Test with type info in the config
+	configContent := `com.apple.dock autohide int 1
+com.apple.finder ShowPathbar bool true
+com.example.app floatValue float 3.14
+com.example.app stringValue string Hello World
+com.example.app invalidType 42
+`
+	fs := &MockFileSystem{HomeDir: "/mock/home", ConfigFileContent: configContent}
+
+	configs, err := ReadConfigFile(fs)
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	// Expected values
+	value1 := "1"
+	value2 := "true"
+	value3 := "3.14"
+	value4 := "Hello World"
+	value5 := "42" // The value should not include the unknown type
+
+	expectedConfigs := []Config{
+		{Domain: "com.apple.dock", Key: "autohide", Value: &value1, Type: "int"},
+		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: &value2, Type: "bool"},
+		{Domain: "com.example.app", Key: "floatValue", Value: &value3, Type: "float"},
+		{Domain: "com.example.app", Key: "stringValue", Value: &value4, Type: "string"},
+		{Domain: "com.example.app", Key: "invalidType", Value: &value5, Type: "string"}, // Should default to string
+	}
+
+	if len(configs) != len(expectedConfigs) {
+		t.Fatalf("Expected %d configs, got %d", len(expectedConfigs), len(configs))
+	}
+
+	for i, config := range configs {
+		if config.Domain != expectedConfigs[i].Domain {
+			t.Errorf("Expected domain %s, got %s", expectedConfigs[i].Domain, config.Domain)
+		}
+		if config.Key != expectedConfigs[i].Key {
+			t.Errorf("Expected key %s, got %s", expectedConfigs[i].Key, config.Key)
+		}
+		if *config.Value != *expectedConfigs[i].Value {
+			t.Errorf("Expected value %s, got %s", *expectedConfigs[i].Value, *config.Value)
+		}
+		if config.Type != expectedConfigs[i].Type {
+			t.Errorf("Expected type %s, got %s", expectedConfigs[i].Type, config.Type)
+		}
 	}
 }
 
@@ -153,14 +203,14 @@ com.example.app longValue 123456789012345678901234567890123456789012345678901234
 	value8 := "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
 
 	expectedConfigs := []Config{
-		{Domain: "com.apple.dock", Key: "autohide", Value: &value1},
-		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: &value2},
-		{Domain: "com.example.app", Key: "floatValue", Value: &value3},
-		{Domain: "com.example.app", Key: "negativeValue", Value: &value4},
-		{Domain: "com.example.app", Key: "zeroValue", Value: &value5},
-		{Domain: "com.example.app", Key: "specialChars", Value: &value6},
-		{Domain: "com.example.app", Key: "emptyValue", Value: &value7},
-		{Domain: "com.example.app", Key: "longValue", Value: &value8},
+		{Domain: "com.apple.dock", Key: "autohide", Value: &value1, Type: "string"},
+		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: &value2, Type: "string"},
+		{Domain: "com.example.app", Key: "floatValue", Value: &value3, Type: "string"},
+		{Domain: "com.example.app", Key: "negativeValue", Value: &value4, Type: "string"},
+		{Domain: "com.example.app", Key: "zeroValue", Value: &value5, Type: "string"},
+		{Domain: "com.example.app", Key: "specialChars", Value: &value6, Type: "string"},
+		{Domain: "com.example.app", Key: "emptyValue", Value: &value7, Type: "string"},
+		{Domain: "com.example.app", Key: "longValue", Value: &value8, Type: "string"},
 	}
 
 	if len(configs) != len(expectedConfigs) {
@@ -180,6 +230,26 @@ com.example.app longValue 123456789012345678901234567890123456789012345678901234
 	}
 }
 
+func TestGenerateConfigFileContent_WithTypes(t *testing.T) {
+	// Test with explicit type information
+	value1 := "1"
+	value2 := "true"
+	value3 := "3.14"
+
+	configs := []Config{
+		{Domain: "com.apple.dock", Key: "autohide", Value: &value1, Type: "int"},
+		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: &value2, Type: "bool"},
+		{Domain: "com.example.app", Key: "floatValue", Value: &value3, Type: "float"},
+	}
+
+	expectedContent := "com.apple.dock autohide int 1\ncom.apple.finder ShowPathbar bool true\ncom.example.app floatValue float 3.14\n"
+	content := GenerateConfigFileContent(configs)
+
+	if content != expectedContent {
+		t.Errorf("Expected content %q, got %q", expectedContent, content)
+	}
+}
+
 func TestGenerateConfigFileContent_VariousInputTypes(t *testing.T) {
 	// Test with various input types
 	value1 := "3.14"
@@ -190,15 +260,17 @@ func TestGenerateConfigFileContent_VariousInputTypes(t *testing.T) {
 	value6 := "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
 
 	configs := []Config{
-		{Domain: "com.example.app", Key: "floatValue", Value: &value1},
-		{Domain: "com.example.app", Key: "negativeValue", Value: &value2},
-		{Domain: "com.example.app", Key: "zeroValue", Value: &value3},
-		{Domain: "com.example.app", Key: "specialChars", Value: &value4},
-		{Domain: "com.example.app", Key: "emptyValue", Value: &value5},
-		{Domain: "com.example.app", Key: "longValue", Value: &value6},
+		{Domain: "com.example.app", Key: "floatValue", Value: &value1, Type: "float"},
+		{Domain: "com.example.app", Key: "negativeValue", Value: &value2, Type: "int"},
+		{Domain: "com.example.app", Key: "zeroValue", Value: &value3, Type: "int"},
+		{Domain: "com.example.app", Key: "specialChars", Value: &value4, Type: "string"},
+		{Domain: "com.example.app", Key: "emptyValue", Value: &value5, Type: "string"},
+		{Domain: "com.example.app", Key: "longValue", Value: &value6, Type: "string"},
 	}
 
-	expectedContent := "com.example.app floatValue 3.14\ncom.example.app negativeValue -42\ncom.example.app zeroValue 0\ncom.example.app specialChars !@#$%^&*()\ncom.example.app emptyValue \ncom.example.app longValue 1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\n"
+	// The expected content should include the type for non-string values based on our implementation
+	// string types should not include the type in the output
+	expectedContent := "com.example.app floatValue float 3.14\ncom.example.app negativeValue int -42\ncom.example.app zeroValue int 0\ncom.example.app specialChars !@#$%^&*()\ncom.example.app emptyValue \ncom.example.app longValue 1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\n"
 	content := GenerateConfigFileContent(configs)
 
 	if content != expectedContent {

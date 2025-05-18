@@ -15,8 +15,16 @@ func Push(configs []config.Config) {
 			log.Printf("Skipping %s: Value is nil", cfg.Key)
 			continue
 		}
+
 		defaults := defaults.NewDefaultsCommandImpl(cfg.Domain, cfg.Key)
-		if err := defaults.Write(context.Background(), *cfg.Value); err != nil {
+
+		// Use the config's type if available, otherwise default to string
+		valueType := cfg.Type
+		if valueType == "" {
+			valueType = "string"
+		}
+
+		if err := defaults.Write(context.Background(), *cfg.Value, valueType); err != nil {
 			log.Printf("Failed to write defaults for %s: %v", cfg.Key, err)
 		}
 	}

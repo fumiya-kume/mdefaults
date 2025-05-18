@@ -10,7 +10,7 @@ import (
 
 func TestPull_Success(t *testing.T) {
 	defaultsCmds := []defaults.DefaultsCommand{
-		&defaults.MockDefaultsCommand{DomainVal: "com.apple.dock", KeyVal: "autohide", ReadResult: "1"},
+		&defaults.MockDefaultsCommand{DomainVal: "com.apple.dock", KeyVal: "autohide", ReadResult: "1", TypeResult: "int"},
 	}
 
 	updatedConfigs, err := PullImpl(defaultsCmds)
@@ -29,6 +29,9 @@ func TestPull_Success(t *testing.T) {
 	if *updatedConfigs[0].Value != "1" {
 		t.Errorf("Expected value '1', got %s", *updatedConfigs[0].Value)
 	}
+	if updatedConfigs[0].Type != "int" {
+		t.Errorf("Expected type 'int', got %s", updatedConfigs[0].Type)
+	}
 }
 
 func TestPull_ReadError(t *testing.T) {
@@ -44,8 +47,8 @@ func TestPull_ReadError(t *testing.T) {
 
 func TestPull_MultipleConfigs(t *testing.T) {
 	defaultsCmds := []defaults.DefaultsCommand{
-		&defaults.MockDefaultsCommand{DomainVal: "com.apple.dock", KeyVal: "autohide", ReadResult: "1"},
-		&defaults.MockDefaultsCommand{DomainVal: "com.apple.finder", KeyVal: "ShowPathbar", ReadResult: "true"},
+		&defaults.MockDefaultsCommand{DomainVal: "com.apple.dock", KeyVal: "autohide", ReadResult: "1", TypeResult: "int"},
+		&defaults.MockDefaultsCommand{DomainVal: "com.apple.finder", KeyVal: "ShowPathbar", ReadResult: "true", TypeResult: "bool"},
 	}
 
 	updatedConfigs, err := PullImpl(defaultsCmds)
@@ -55,10 +58,16 @@ func TestPull_MultipleConfigs(t *testing.T) {
 	if len(updatedConfigs) != 2 {
 		t.Errorf("Expected 2 configs, got %d", len(updatedConfigs))
 	}
-	if updatedConfigs[0].Domain != "com.apple.dock" || updatedConfigs[0].Key != "autohide" || *updatedConfigs[0].Value != "1" {
+	if updatedConfigs[0].Domain != "com.apple.dock" ||
+		updatedConfigs[0].Key != "autohide" ||
+		*updatedConfigs[0].Value != "1" ||
+		updatedConfigs[0].Type != "int" {
 		t.Errorf("Unexpected config: %+v", updatedConfigs[0])
 	}
-	if updatedConfigs[1].Domain != "com.apple.finder" || updatedConfigs[1].Key != "ShowPathbar" || *updatedConfigs[1].Value != "true" {
+	if updatedConfigs[1].Domain != "com.apple.finder" ||
+		updatedConfigs[1].Key != "ShowPathbar" ||
+		*updatedConfigs[1].Value != "true" ||
+		updatedConfigs[1].Type != "bool" {
 		t.Errorf("Unexpected config: %+v", updatedConfigs[1])
 	}
 }

@@ -34,7 +34,7 @@ func TestDefaultsCommandWriteSuccess(t *testing.T) {
 	defaults := &MockDefaultsCommand{
 		WriteError: nil,
 	}
-	err := defaults.Write(context.Background(), "true")
+	err := defaults.Write(context.Background(), "true", "bool")
 	if err != nil {
 		t.Errorf("Error writing defaults: %v", err)
 	}
@@ -44,9 +44,44 @@ func TestDefaultsCommandWriteError(t *testing.T) {
 	defaults := &MockDefaultsCommand{
 		WriteError: errors.New("write error"),
 	}
-	err := defaults.Write(context.Background(), "true")
+	err := defaults.Write(context.Background(), "true", "bool")
 	if err == nil {
 		t.Errorf("Expected error, got nil")
+	}
+}
+
+// Test ReadType functionality
+func TestDefaultsCommandReadType(t *testing.T) {
+	testCases := []struct {
+		name        string
+		typeResult  string
+		expectError bool
+		typeError   error
+	}{
+		{"Boolean type", "bool", false, nil},
+		{"Integer type", "int", false, nil},
+		{"Float type", "float", false, nil},
+		{"String type", "string", false, nil},
+		{"Error case", "", true, errors.New("read type error")},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			defaults := &MockDefaultsCommand{
+				TypeResult: tc.typeResult,
+				TypeError:  tc.typeError,
+			}
+			result, err := defaults.ReadType(context.Background())
+			if tc.expectError && err == nil {
+				t.Errorf("Expected error, got nil")
+			}
+			if !tc.expectError && err != nil {
+				t.Errorf("Error reading type: %v", err)
+			}
+			if !tc.expectError && result != tc.typeResult {
+				t.Errorf("Expected type result to be '%s' but got '%s'", tc.typeResult, result)
+			}
+		})
 	}
 }
 
@@ -90,15 +125,16 @@ func TestDefaultsCommandWriteDifferentValues(t *testing.T) {
 	testCases := []struct {
 		name        string
 		writeValue  string
+		writeType   string
 		expectError bool
 	}{
-		{"Boolean true", "true", false},
-		{"Boolean false", "false", false},
-		{"Integer value", "42", false},
-		{"Decimal value", "3.14", false},
-		{"String value", "hello world", false},
-		{"Empty string", "", false},
-		{"Special characters", "!@#$%^&*()", false},
+		{"Boolean true", "true", "bool", false},
+		{"Boolean false", "false", "bool", false},
+		{"Integer value", "42", "int", false},
+		{"Decimal value", "3.14", "float", false},
+		{"String value", "hello world", "string", false},
+		{"Empty string", "", "string", false},
+		{"Special characters", "!@#$%^&*()", "string", false},
 	}
 
 	for _, tc := range testCases {
@@ -106,7 +142,7 @@ func TestDefaultsCommandWriteDifferentValues(t *testing.T) {
 			defaults := &MockDefaultsCommand{
 				WriteError: nil,
 			}
-			err := defaults.Write(context.Background(), tc.writeValue)
+			err := defaults.Write(context.Background(), tc.writeValue, tc.writeType)
 			if tc.expectError && err == nil {
 				t.Errorf("Expected error, got nil")
 			}
@@ -209,7 +245,7 @@ func TestDefaultsCommandImplWriteEmptyDomainOrKey(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			defaults := NewDefaultsCommandImpl(tc.domain, tc.key)
-			err := defaults.Write(context.Background(), "test")
+			err := defaults.Write(context.Background(), "test", "string")
 			if err == nil {
 				t.Errorf("Expected error for empty domain or key, got nil")
 			}
