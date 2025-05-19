@@ -1,0 +1,116 @@
+name: mdefaults CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: 'mdefaults operation to run'
+        required: true
+        default: 'pull'
+        type: choice
+        options:
+          - pull
+          - push
+      config_content:
+        description: 'Content for .mdefaults config file (one domain and key per line)'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  test:
+    name: Test mdefaults
+    runs-on: macos-latest # Use macOS runner since this is a macOS-specific tool
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '>=1.23.0'
+          cache: true
+
+      - name: Run tests
+        run: go test -v ./...
+
+  build:
+    name: Build mdefaults
+    needs: test
+    runs-on: macos-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '>=1.23.0'
+          cache: true
+
+      - name: Build
+        run: |
+          go build -ldflags="-X 'main.version=$(git describe --tags --always)' -X 'main.architecture=$(uname -m)'" -o mdefaults ./cmd/mdefaults
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: mdefaults
+          path: ./mdefaults
+          retention-days: 7
+
+  run:
+    name: Run mdefaults
+    needs: build
+    runs-on: macos-latest
+    if: github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: mdefaults
+          path: ./
+
+      - name: Make executable
+        run: chmod +x ./mdefaults
+
+      - name: Create config file
+        if: "${{ github.event.inputs.config_content != '' }}"
+        run: |
+          mkdir -p ~/.mdefaults
+          echo "${{ github.event.inputs.config_content }}" > ~/.mdefaults/config
+
+      - name: Show existing config
+        run: |
+          if [ -f ~/.mdefaults/config ]; then
+            echo "Current config file content:"
+            cat ~/.mdefaults/config
+          else
+            echo "No config file exists yet"
+          fi
+
+      - name: Run mdefaults
+        run: |
+          ./mdefaults --verbose ${{ github.event.inputs.operation }} -y
+          
+      - name: Show updated config
+        run: |
+          if [ -f ~/.mdefaults/config ]; then
+            echo "Updated config file content:"
+            cat ~/.mdefaults/config
+          else
+            echo "No config file exists"
+          fi
