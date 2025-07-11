@@ -24,10 +24,17 @@ func PullImpl(defaultsCmds []defaults.DefaultsCommand) ([]config.Config, error) 
 			continue
 		}
 		value = strings.ReplaceAll(value, "\n", "")
+		
+		valueType, err := defaultsCmds[i].ReadType(context.Background())
+		if err != nil {
+			valueType = "string"
+		}
+		
 		updatedConfigs = append(updatedConfigs, config.Config{
 			Domain: defaultsCmds[i].Domain(),
 			Key:    defaultsCmds[i].Key(),
 			Value:  &value,
+			Type:   valueType,
 		})
 	}
 	return updatedConfigs, nil

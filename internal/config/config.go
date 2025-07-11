@@ -8,11 +8,12 @@ import (
 	"strings"
 )
 
-// Config represents a configuration entry with domain, key, and value.
+// Config represents a configuration entry with domain, key, value, and type.
 type Config struct {
 	Domain string
 	Key    string
 	Value  *string
+	Type   string
 }
 
 // ConfigFilePath is the default path for the configuration file.
@@ -34,11 +35,23 @@ func ReadConfigFile(fs FileSystemReader) ([]Config, error) {
 	for _, line := range strings.Split(content, "\n") {
 		if line != "" {
 			parts := strings.Split(line, " ")
+			if len(parts) < 2 {
+				continue
+			}
 			value := ""
-			if len(parts) == 3 {
+			valueType := "string"
+			if len(parts) >= 3 {
 				value = parts[2]
 			}
-			configs = append(configs, Config{Domain: parts[0], Key: parts[1], Value: &value})
+			if len(parts) >= 4 {
+				valueType = parts[3]
+			}
+			configs = append(configs, Config{
+				Domain: parts[0],
+				Key:    parts[1],
+				Value:  &value,
+				Type:   valueType,
+			})
 		}
 	}
 	return configs, nil
@@ -52,7 +65,11 @@ func GenerateConfigFileContent(configs []Config) string {
 			log.Printf("Skipping %s: Value is nil", config.Key)
 			continue
 		}
-		content += fmt.Sprintf("%s %s %s\n", config.Domain, config.Key, *config.Value)
+		configType := config.Type
+		if configType == "" {
+			configType = "string"
+		}
+		content += fmt.Sprintf("%s %s %s %s\n", config.Domain, config.Key, *config.Value, configType)
 	}
 	return content
 }
