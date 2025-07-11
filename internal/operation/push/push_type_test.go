@@ -25,7 +25,7 @@ func TestPushWithTypes(t *testing.T) {
 	Push(configs)
 
 	logStr := logOutput.String()
-	if strings.Contains(logStr, "Failed to write") && !strings.Contains(logStr, "exit status 127") {
+	if strings.Contains(logStr, "Failed to write") && !strings.Contains(logStr, "exit status 127") && !strings.Contains(logStr, "executable file not found") {
 		t.Errorf("Unexpected error in log output: %s", logStr)
 	}
 }
@@ -43,7 +43,7 @@ func TestPushWithStringType(t *testing.T) {
 	Push(configs)
 
 	logStr := logOutput.String()
-	if strings.Contains(logStr, "Failed to write") && !strings.Contains(logStr, "exit status 127") {
+	if strings.Contains(logStr, "Failed to write") && !strings.Contains(logStr, "exit status 127") && !strings.Contains(logStr, "executable file not found") {
 		t.Errorf("Unexpected error in log output: %s", logStr)
 	}
 }
@@ -61,7 +61,7 @@ func TestPushWithEmptyType(t *testing.T) {
 	Push(configs)
 
 	logStr := logOutput.String()
-	if strings.Contains(logStr, "Failed to write") && !strings.Contains(logStr, "exit status 127") {
+	if strings.Contains(logStr, "Failed to write") && !strings.Contains(logStr, "exit status 127") && !strings.Contains(logStr, "executable file not found") {
 		t.Errorf("Unexpected error in log output: %s", logStr)
 	}
 }

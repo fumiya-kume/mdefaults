@@ -44,8 +44,7 @@ func (d *DefaultsCommandImpl) Read(ctx context.Context) (string, error) {
 	if d.domain == "" || d.key == "" {
 		return "", fmt.Errorf("domain and key cannot be empty")
 	}
-	command := fmt.Sprintf("defaults read %s %s", d.domain, d.key)
-	output, err := exec.CommandContext(ctx, "bash", "-c", command).Output()
+	output, err := exec.CommandContext(ctx, "defaults", "read", d.domain, d.key).Output()
 	if err != nil {
 		return "", err
 	}
@@ -57,8 +56,7 @@ func (d *DefaultsCommandImpl) ReadType(ctx context.Context) (string, error) {
 	if d.domain == "" || d.key == "" {
 		return "", fmt.Errorf("domain and key cannot be empty")
 	}
-	command := fmt.Sprintf("defaults read-type %s %s", d.domain, d.key)
-	output, err := exec.CommandContext(ctx, "bash", "-c", command).Output()
+	output, err := exec.CommandContext(ctx, "defaults", "read-type", d.domain, d.key).Output()
 	if err != nil {
 		return "string", nil
 	}
@@ -77,8 +75,7 @@ func (d *DefaultsCommandImpl) Write(ctx context.Context, value string) error {
 	if d.domain == "" || d.key == "" {
 		return fmt.Errorf("domain and key cannot be empty")
 	}
-	command := fmt.Sprintf("defaults write %s %s %s", d.domain, d.key, value)
-	_, err := exec.CommandContext(ctx, "bash", "-c", command).Output()
+	_, err := exec.CommandContext(ctx, "defaults", "write", d.domain, d.key, value).Output()
 	if err != nil {
 		return err
 	}
@@ -91,14 +88,14 @@ func (d *DefaultsCommandImpl) WriteWithType(ctx context.Context, value string, v
 	}
 	
 	typeFlag := mapInternalTypeToFlag(valueType)
-	var command string
+	var args []string
 	if typeFlag == "" || valueType == "string" {
-		command = fmt.Sprintf("defaults write %s %s %s", d.domain, d.key, value)
+		args = []string{"defaults", "write", d.domain, d.key, value}
 	} else {
-		command = fmt.Sprintf("defaults write %s %s %s %s", d.domain, d.key, typeFlag, value)
+		args = []string{"defaults", "write", d.domain, d.key, typeFlag, value}
 	}
 	
-	_, err := exec.CommandContext(ctx, "bash", "-c", command).Output()
+	_, err := exec.CommandContext(ctx, args[0], args[1:]...).Output()
 	if err != nil {
 		return err
 	}
