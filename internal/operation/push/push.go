@@ -16,8 +16,15 @@ func Push(configs []config.Config) {
 			continue
 		}
 		defaults := defaults.NewDefaultsCommandImpl(cfg.Domain, cfg.Key)
-		if err := defaults.Write(context.Background(), *cfg.Value); err != nil {
-			log.Printf("Failed to write defaults for %s: %v", cfg.Key, err)
+		
+		if cfg.Type != "" && cfg.Type != "string" {
+			if err := defaults.WriteWithType(context.Background(), *cfg.Value, cfg.Type); err != nil {
+				log.Printf("Failed to write typed defaults for %s: %v", cfg.Key, err)
+			}
+		} else {
+			if err := defaults.Write(context.Background(), *cfg.Value); err != nil {
+				log.Printf("Failed to write defaults for %s: %v", cfg.Key, err)
+			}
 		}
 	}
 }

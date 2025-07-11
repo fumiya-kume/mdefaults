@@ -17,8 +17,8 @@ func TestReadConfigFile_Success(t *testing.T) {
 	value1 := "1"
 	value2 := "true"
 	expectedConfigs := []Config{
-		{Domain: "com.apple.dock", Key: "autohide", Value: &value1},
-		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: &value2},
+		{Domain: "com.apple.dock", Key: "autohide", Value: &value1, Type: "string"},
+		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: &value2, Type: "string"},
 	}
 
 	if len(configs) != len(expectedConfigs) {
@@ -34,6 +34,9 @@ func TestReadConfigFile_Success(t *testing.T) {
 		}
 		if *config.Value != *expectedConfigs[i].Value {
 			t.Errorf("Expected value %s, got %s", *expectedConfigs[i].Value, *config.Value)
+		}
+		if config.Type != expectedConfigs[i].Type {
+			t.Errorf("Expected type %s, got %s", expectedConfigs[i].Type, config.Type)
 		}
 	}
 }
@@ -59,7 +62,7 @@ func TestGenerateConfigFileContent(t *testing.T) {
 		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: &value2},
 	}
 
-	expectedContent := "com.apple.dock autohide 1\ncom.apple.finder ShowPathbar true\n"
+	expectedContent := "com.apple.dock autohide 1 string\ncom.apple.finder ShowPathbar true string\n"
 	content := GenerateConfigFileContent(configs)
 
 	if content != expectedContent {
@@ -97,7 +100,7 @@ func TestWriteConfigFile_Success(t *testing.T) {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
-	expectedContent := "com.apple.dock autohide 1\ncom.apple.finder ShowPathbar true\n"
+	expectedContent := "com.apple.dock autohide 1 string\ncom.apple.finder ShowPathbar true string\n"
 	if mockFS.WriteFileContent != expectedContent {
 		t.Errorf("Expected WriteFileContent %q, got %q", expectedContent, mockFS.WriteFileContent)
 	}
@@ -153,14 +156,14 @@ com.example.app longValue 123456789012345678901234567890123456789012345678901234
 	value8 := "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
 
 	expectedConfigs := []Config{
-		{Domain: "com.apple.dock", Key: "autohide", Value: &value1},
-		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: &value2},
-		{Domain: "com.example.app", Key: "floatValue", Value: &value3},
-		{Domain: "com.example.app", Key: "negativeValue", Value: &value4},
-		{Domain: "com.example.app", Key: "zeroValue", Value: &value5},
-		{Domain: "com.example.app", Key: "specialChars", Value: &value6},
-		{Domain: "com.example.app", Key: "emptyValue", Value: &value7},
-		{Domain: "com.example.app", Key: "longValue", Value: &value8},
+		{Domain: "com.apple.dock", Key: "autohide", Value: &value1, Type: "string"},
+		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: &value2, Type: "string"},
+		{Domain: "com.example.app", Key: "floatValue", Value: &value3, Type: "string"},
+		{Domain: "com.example.app", Key: "negativeValue", Value: &value4, Type: "string"},
+		{Domain: "com.example.app", Key: "zeroValue", Value: &value5, Type: "string"},
+		{Domain: "com.example.app", Key: "specialChars", Value: &value6, Type: "string"},
+		{Domain: "com.example.app", Key: "emptyValue", Value: &value7, Type: "string"},
+		{Domain: "com.example.app", Key: "longValue", Value: &value8, Type: "string"},
 	}
 
 	if len(configs) != len(expectedConfigs) {
@@ -176,6 +179,9 @@ com.example.app longValue 123456789012345678901234567890123456789012345678901234
 		}
 		if *config.Value != *expectedConfigs[i].Value {
 			t.Errorf("Expected value %s, got %s", *expectedConfigs[i].Value, *config.Value)
+		}
+		if config.Type != expectedConfigs[i].Type {
+			t.Errorf("Expected type %s, got %s", expectedConfigs[i].Type, config.Type)
 		}
 	}
 }
@@ -198,7 +204,7 @@ func TestGenerateConfigFileContent_VariousInputTypes(t *testing.T) {
 		{Domain: "com.example.app", Key: "longValue", Value: &value6},
 	}
 
-	expectedContent := "com.example.app floatValue 3.14\ncom.example.app negativeValue -42\ncom.example.app zeroValue 0\ncom.example.app specialChars !@#$%^&*()\ncom.example.app emptyValue \ncom.example.app longValue 1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\n"
+	expectedContent := "com.example.app floatValue 3.14 string\ncom.example.app negativeValue -42 string\ncom.example.app zeroValue 0 string\ncom.example.app specialChars !@#$%^&*() string\ncom.example.app emptyValue  string\ncom.example.app longValue 1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890 string\n"
 	content := GenerateConfigFileContent(configs)
 
 	if content != expectedContent {
