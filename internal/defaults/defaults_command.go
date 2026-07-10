@@ -21,13 +21,25 @@ type DefaultsCommand interface {
 type DefaultsCommandImpl struct {
 	domain string
 	key    string
+	run    commandRunner
+}
+
+type commandRunner func(ctx context.Context, name string, args ...string) ([]byte, error)
+
+func runCommand(ctx context.Context, name string, args ...string) ([]byte, error) {
+	return exec.CommandContext(ctx, name, args...).Output()
 }
 
 // NewDefaultsCommandImpl creates a new DefaultsCommandImpl with the given domain and key.
 func NewDefaultsCommandImpl(domain, key string) *DefaultsCommandImpl {
+	return newDefaultsCommandImpl(domain, key, runCommand)
+}
+
+func newDefaultsCommandImpl(domain, key string, run commandRunner) *DefaultsCommandImpl {
 	return &DefaultsCommandImpl{
 		domain: domain,
 		key:    key,
+		run:    run,
 	}
 }
 
@@ -41,10 +53,10 @@ func (d *DefaultsCommandImpl) Key() string {
 
 // Read executes a command to read a default setting.
 func (d *DefaultsCommandImpl) Read(ctx context.Context) (string, error) {
-	if d.domain == "" || d.key == "" {
-		return "", fmt.Errorf("domain and key cannot be empty")
+	if err := validateDomainAndKey(d.domain, d.key); err != nil {
+		return "", err
 	}
-	output, err := exec.CommandContext(ctx, "defaults", "read", d.domain, d.key).Output()
+	output, err := d.run(ctx, "defaults", "read", d.domain, d.key)
 	if err != nil {
 		return "", err
 	}
@@ -53,29 +65,22 @@ func (d *DefaultsCommandImpl) Read(ctx context.Context) (string, error) {
 
 // ReadType executes a command to read the type of a default setting.
 func (d *DefaultsCommandImpl) ReadType(ctx context.Context) (string, error) {
-	if d.domain == "" || d.key == "" {
-		return "", fmt.Errorf("domain and key cannot be empty")
+	if err := validateDomainAndKey(d.domain, d.key); err != nil {
+		return "", err
 	}
-	output, err := exec.CommandContext(ctx, "defaults", "read-type", d.domain, d.key).Output()
+	output, err := d.run(ctx, "defaults", "read-type", d.domain, d.key)
 	if err != nil {
-		return "string", nil
+		return "", err
 	}
-	typeOutput := strings.TrimSpace(string(output))
-	if strings.Contains(typeOutput, "Type is ") {
-		parts := strings.Split(typeOutput, "Type is ")
-		if len(parts) > 1 {
-			return mapMacOSTypeToInternal(strings.TrimSpace(parts[1])), nil
-		}
-	}
-	return "string", nil
+	return parseMacOSTypeOutput(string(output))
 }
 
 // Write executes a command to write a default setting.
 func (d *DefaultsCommandImpl) Write(ctx context.Context, value string) error {
-	if d.domain == "" || d.key == "" {
-		return fmt.Errorf("domain and key cannot be empty")
+	if err := validateDomainAndKey(d.domain, d.key); err != nil {
+		return err
 	}
-	_, err := exec.CommandContext(ctx, "defaults", "write", d.domain, d.key, value).Output()
+	_, err := d.run(ctx, "defaults", "write", d.domain, d.key, value)
 	if err != nil {
 		return err
 	}
@@ -83,45 +88,95 @@ func (d *DefaultsCommandImpl) Write(ctx context.Context, value string) error {
 }
 
 func (d *DefaultsCommandImpl) WriteWithType(ctx context.Context, value string, valueType string) error {
-	if d.domain == "" || d.key == "" {
-		return fmt.Errorf("domain and key cannot be empty")
+	if err := validateDomainAndKey(d.domain, d.key); err != nil {
+		return err
 	}
-	
+
+	normalizedValue, err := normalizeValue(value, valueType)
+	if err != nil {
+		return err
+	}
+
 	typeFlag := mapInternalTypeToFlag(valueType)
 	var args []string
-	if typeFlag == "" || valueType == "string" {
-		args = []string{"defaults", "write", d.domain, d.key, value}
+	if typeFlag == "" {
+		args = []string{"write", d.domain, d.key, normalizedValue}
 	} else {
-		args = []string{"defaults", "write", d.domain, d.key, typeFlag, value}
+		args = []string{"write", d.domain, d.key, typeFlag, normalizedValue}
 	}
-	
-	_, err := exec.CommandContext(ctx, args[0], args[1:]...).Output()
+
+	_, err = d.run(ctx, "defaults", args...)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func mapMacOSTypeToInternal(macOSType string) string {
+func validateDomainAndKey(domain, key string) error {
+	if domain == "" || key == "" {
+		return fmt.Errorf("domain and key cannot be empty")
+	}
+	return nil
+}
+
+func parseMacOSTypeOutput(output string) (string, error) {
+	const typePrefix = "Type is "
+
+	output = strings.TrimSpace(output)
+	if !strings.HasPrefix(output, typePrefix) {
+		return "", fmt.Errorf("unexpected defaults type output %q", output)
+	}
+	return mapMacOSTypeToInternal(strings.TrimSpace(strings.TrimPrefix(output, typePrefix)))
+}
+
+func mapMacOSTypeToInternal(macOSType string) (string, error) {
 	switch strings.ToLower(macOSType) {
 	case "integer":
-		return "integer"
+		return "integer", nil
 	case "boolean":
-		return "boolean"
+		return "boolean", nil
 	case "string":
-		return "string"
+		return "string", nil
 	case "float", "real":
-		return "float"
+		return "float", nil
 	case "date":
-		return "date"
-	case "array":
-		return "array"
-	case "dictionary":
-		return "dict"
-	case "data":
-		return "data"
+		return "date", nil
+	case "array", "dictionary", "data":
+		return "", fmt.Errorf("unsupported macOS defaults type %q", macOSType)
 	default:
-		return "string"
+		return "", fmt.Errorf("unknown macOS defaults type %q", macOSType)
+	}
+}
+
+// ValidateType reports whether mdefaults can safely write the supplied type.
+func ValidateType(valueType string) error {
+	if valueType == "" || valueType == "string" || mapInternalTypeToFlag(valueType) != "" {
+		return nil
+	}
+	return fmt.Errorf("unsupported defaults type %q", valueType)
+}
+
+// ValidateValue reports whether mdefaults can safely write the value as the supplied type.
+func ValidateValue(value, valueType string) error {
+	_, err := normalizeValue(value, valueType)
+	return err
+}
+
+func normalizeValue(value, valueType string) (string, error) {
+	if err := ValidateType(valueType); err != nil {
+		return "", err
+	}
+	if valueType != "boolean" {
+		return value, nil
+	}
+
+	switch strings.ToLower(value) {
+	case "1", "true", "yes":
+		return "true", nil
+	case "0", "false", "no":
+		return "false", nil
+	default:
+		return "", fmt.Errorf("invalid boolean value %q: expected 1, 0, true, false, yes, or no", value)
 	}
 }
 
@@ -135,12 +190,6 @@ func mapInternalTypeToFlag(internalType string) string {
 		return "-float"
 	case "date":
 		return "-date"
-	case "array":
-		return "-array"
-	case "dict":
-		return "-dict"
-	case "data":
-		return "-data"
 	case "string":
 		return ""
 	default:

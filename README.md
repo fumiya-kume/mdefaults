@@ -11,13 +11,15 @@ https://github.com/user-attachments/assets/de6fe801-e8e1-400f-bbae-f3fdd9abb0a6
 #### Install
 
 In the terminal
-```
+
+```sh
 brew tap fumiya-kume/mdefaults
 brew install mdefaults
 ```
 
 In the `.Brewfile`
-```
+
+```ruby
 tap "fumiya-kume/mdefaults"
 brew "mdefaults"
 ```
@@ -26,7 +28,7 @@ brew "mdefaults"
 
 Place your configuration file in the directory `~/.mdefaults`. This is an example configuration file:
 
-```
+```text
 com.apple.dock autohide
 com.apple.finder ShowPathbar
 ```
@@ -37,7 +39,7 @@ Then execute `mdefaults pull` (get the current macOS configuration and save it t
 
 Pull the current macOS configuration that is written in the configuration file.
 
-```
+```sh
 mdefaults pull
 ```
 
@@ -45,7 +47,7 @@ mdefaults pull
 
 Apply the configuration settings from the file to macOS.
 
-```
+```sh
 mdefaults push
 ```
 
@@ -53,7 +55,7 @@ mdefaults push
 
 Print the configuration file content.
 
-```
+```sh
 mdefaults config
 ```
 
@@ -65,7 +67,7 @@ Enable verbose logging to get detailed information about the application's opera
 
 To enable verbose mode, use the `--verbose` flag with any command:
 
-```
+```sh
 mdefaults --verbose pull
 ```
 
@@ -74,6 +76,7 @@ This will provide additional log output in the console and write detailed logs t
 ### Troubleshooting
 
 If you encounter any issues, please check the following:
+
 - Ensure the configuration file is correctly formatted.
 - Verify that `mdefaults` is installed correctly.
 
@@ -81,13 +84,34 @@ If you encounter any issues, please check the following:
 
 Contributions are welcome! Please fork the repository and submit a pull request.
 
+### Testing
+
+Run the race-enabled Unit suite and its coverage gate:
+
+```sh
+go test -race -shuffle=on -count=1 -covermode=atomic -coverprofile=coverage.out ./...
+./scripts/check_coverage.sh coverage.out 95.0
+```
+
+Run the actual CLI in the isolated Docker E2E environment:
+
+```sh
+docker build -f test/e2e/Dockerfile -t mdefaults-e2e:local .
+docker run --rm --network none --read-only \
+  --tmpfs /tmp:rw,nosuid,nodev,size=64m \
+  --cap-drop ALL --security-opt no-new-privileges \
+  mdefaults-e2e:local
+```
+
+See [the testing strategy](design-doc/testing-strategy.md) for the complete Unit,
+Docker E2E, and hosted macOS smoke-test design.
+
 ## Installation
 
-```
+```sh
 go install github.com/fumiya-kume/mdefaults
 ```
 
 ## License
 
 [GPL-3.0](LICENSE)
-

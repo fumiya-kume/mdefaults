@@ -43,34 +43,30 @@ func TestPullImplWithTypes(t *testing.T) {
 			continue
 		}
 		actual := updatedConfigs[i]
-		if actual.Domain != expected.Domain || actual.Key != expected.Key || 
-		   *actual.Value != *expected.Value || actual.Type != expected.Type {
+		if actual.Domain != expected.Domain || actual.Key != expected.Key ||
+			*actual.Value != *expected.Value || actual.Type != expected.Type {
 			t.Errorf("Config mismatch at index %d: expected %+v, got %+v", i, expected, actual)
 		}
 	}
 }
 
-func TestPullImplWithTypeDetectionFailure(t *testing.T) {
+func TestPullImplReturnsTypeDetectionFailure(t *testing.T) {
+	typeErr := &MockError{}
 	defaultsCmds := []defaults.DefaultsCommand{
 		&defaults.MockDefaultsCommand{
 			DomainVal:     "com.apple.dock",
 			KeyVal:        "autohide",
 			ReadResult:    "1",
-			ReadTypeError: &MockError{},
+			ReadTypeError: typeErr,
 		},
 	}
 
 	updatedConfigs, err := PullImpl(defaultsCmds)
-	if err != nil {
-		t.Errorf("Expected no error, got %v", err)
+	if err == nil {
+		t.Fatal("expected type detection error")
 	}
-
-	if len(updatedConfigs) != 1 {
-		t.Errorf("Expected 1 config, got %d", len(updatedConfigs))
-	}
-
-	if updatedConfigs[0].Type != "string" {
-		t.Errorf("Expected type 'string' when type detection fails, got %s", updatedConfigs[0].Type)
+	if updatedConfigs != nil {
+		t.Fatalf("expected no partial configs, got %d", len(updatedConfigs))
 	}
 }
 

@@ -30,8 +30,8 @@ func TestReadConfigFileWithTypes(t *testing.T) {
 			continue
 		}
 		actual := configs[i]
-		if actual.Domain != expected.Domain || actual.Key != expected.Key || 
-		   *actual.Value != *expected.Value || actual.Type != expected.Type {
+		if actual.Domain != expected.Domain || actual.Key != expected.Key ||
+			*actual.Value != *expected.Value || actual.Type != expected.Type {
 			t.Errorf("Config mismatch at index %d: expected %+v, got %+v", i, expected, actual)
 		}
 	}
@@ -62,8 +62,8 @@ func TestReadConfigFileBackwardCompatibility(t *testing.T) {
 			continue
 		}
 		actual := configs[i]
-		if actual.Domain != expected.Domain || actual.Key != expected.Key || 
-		   *actual.Value != *expected.Value || actual.Type != expected.Type {
+		if actual.Domain != expected.Domain || actual.Key != expected.Key ||
+			*actual.Value != *expected.Value || actual.Type != expected.Type {
 			t.Errorf("Config mismatch at index %d: expected %+v, got %+v", i, expected, actual)
 		}
 	}
@@ -76,7 +76,7 @@ func TestGenerateConfigFileContentWithTypes(t *testing.T) {
 		{Domain: "com.apple.trackpad", Key: "ClickThreshold", Value: stringPtr("2"), Type: "integer"},
 	}
 
-	expectedContent := "com.apple.dock autohide 1 boolean\ncom.apple.finder ShowPathbar true boolean\ncom.apple.trackpad ClickThreshold 2 integer\n"
+	expectedContent := "com.apple.dock autohide \"1\" boolean\ncom.apple.finder ShowPathbar \"true\" boolean\ncom.apple.trackpad ClickThreshold \"2\" integer\n"
 	actualContent := GenerateConfigFileContent(configs)
 
 	if actualContent != expectedContent {
@@ -90,7 +90,7 @@ func TestGenerateConfigFileContentWithEmptyType(t *testing.T) {
 		{Domain: "com.apple.finder", Key: "ShowPathbar", Value: stringPtr("true"), Type: "boolean"},
 	}
 
-	expectedContent := "com.apple.dock autohide 1 string\ncom.apple.finder ShowPathbar true boolean\n"
+	expectedContent := "com.apple.dock autohide \"1\" string\ncom.apple.finder ShowPathbar \"true\" boolean\n"
 	actualContent := GenerateConfigFileContent(configs)
 
 	if actualContent != expectedContent {
