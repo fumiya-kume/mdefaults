@@ -1,99 +1,53 @@
 package main
 
-import (
-	"flag"
-	"os"
-	"testing"
-)
+import "testing"
 
-func TestInitFlags(t *testing.T) {
-	// Save original args and restore after test
-	originalArgs := os.Args
-	defer func() { os.Args = originalArgs }()
-
-	// Reset flags before test
-	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
-
-	// Reset flag variables
-	versionFlag = false
-	vFlag = false
-	verboseFlag = false
-	yesFlag = false
-
-	// Initialize flags
-	initFlags()
-
-	// Test cases
+func TestParseArguments(t *testing.T) {
 	testCases := []struct {
 		name     string
 		args     []string
-		flagVar  *bool
-		expected bool
+		expected commandOptions
 	}{
-		{"version flag", []string{"cmd", "-version"}, &versionFlag, true},
-		{"v flag", []string{"cmd", "-v"}, &vFlag, true},
-		{"verbose flag", []string{"cmd", "-verbose"}, &verboseFlag, true},
-		{"y flag", []string{"cmd", "-y"}, &yesFlag, true},
+		{name: "empty"},
+		{name: "command", args: []string{"pull"}, expected: commandOptions{command: "pull"}},
+		{name: "long version", args: []string{"--version"}, expected: commandOptions{version: true}},
+		{name: "short version", args: []string{"-v"}, expected: commandOptions{version: true}},
+		{name: "flags before command", args: []string{"--verbose", "-y", "pull"}, expected: commandOptions{command: "pull", verbose: true, yes: true}},
+		{name: "flags after command", args: []string{"pull", "--verbose", "-y"}, expected: commandOptions{command: "pull", verbose: true, yes: true}},
+		{name: "boolean assignment", args: []string{"--verbose=false", "push"}, expected: commandOptions{command: "push"}},
+		{name: "long help", args: []string{"--help"}, expected: commandOptions{help: true}},
+		{name: "short help with command", args: []string{"config", "-h"}, expected: commandOptions{command: "config", help: true}},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			// Reset flags before each test case
-			flag.CommandLine = flag.NewFlagSet(tc.args[0], flag.ExitOnError)
-
-			// Reset flag variables
-			versionFlag = false
-			vFlag = false
-			verboseFlag = false
-			yesFlag = false
-
-			// Initialize flags
-			initFlags()
-
-			// Set args and parse
-			os.Args = tc.args
-			flag.Parse()
-
-			// Check if flag is set correctly
-			if *tc.flagVar != tc.expected {
-				t.Errorf("Expected %v to be %v, got %v", tc.name, tc.expected, *tc.flagVar)
+			actual, err := parseArguments(tc.args)
+			if err != nil {
+				t.Fatalf("expected no error, got %v", err)
+			}
+			if actual != tc.expected {
+				t.Fatalf("expected %+v, got %+v", tc.expected, actual)
 			}
 		})
 	}
 }
 
-func TestFlagDefaults(t *testing.T) {
-	// Save original args and restore after test
-	originalArgs := os.Args
-	defer func() { os.Args = originalArgs }()
-
-	// Reset flags before test
-	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
-
-	// Reset flag variables
-	versionFlag = false
-	vFlag = false
-	verboseFlag = false
-	yesFlag = false
-
-	// Initialize flags
-	initFlags()
-
-	// Set args without any flags
-	os.Args = []string{"cmd"}
-	flag.Parse()
-
-	// Check default values
-	if versionFlag != false {
-		t.Errorf("Expected versionFlag default to be false, got %v", versionFlag)
+func TestParseArgumentsRejectsInvalidInput(t *testing.T) {
+	testCases := []struct {
+		name string
+		args []string
+	}{
+		{name: "unknown flag", args: []string{"--unknown"}},
+		{name: "single dash", args: []string{"-"}},
+		{name: "multiple commands", args: []string{"pull", "push"}},
+		{name: "flag terminator with argument", args: []string{"--", "pull"}},
 	}
-	if vFlag != false {
-		t.Errorf("Expected vFlag default to be false, got %v", vFlag)
-	}
-	if verboseFlag != false {
-		t.Errorf("Expected verboseFlag default to be false, got %v", verboseFlag)
-	}
-	if yesFlag != false {
-		t.Errorf("Expected yesFlag default to be false, got %v", yesFlag)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if _, err := parseArguments(tc.args); err == nil {
+				t.Fatal("expected an error")
+			}
+		})
 	}
 }

@@ -1,0 +1,6 @@
+.git
+.env
+*.out
+*.test
+mdefaults
+mdefaults.log

@@ -2,6 +2,7 @@ package pull
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/fumiya-kume/mdefaults/internal/config"
@@ -19,20 +20,21 @@ func Pull(configs []config.Config) ([]config.Config, error) {
 func PullImpl(defaultsCmds []defaults.DefaultsCommand) ([]config.Config, error) {
 	updatedConfigs := make([]config.Config, 0, len(defaultsCmds))
 	for i := 0; i < len(defaultsCmds); i++ {
-		value, err := defaultsCmds[i].Read(context.Background())
+		command := defaultsCmds[i]
+		value, err := command.Read(context.Background())
 		if err != nil {
-			continue
+			return nil, fmt.Errorf("read %s %s: %w", command.Domain(), command.Key(), err)
 		}
-		value = strings.ReplaceAll(value, "\n", "")
-		
-		valueType, err := defaultsCmds[i].ReadType(context.Background())
+		value = strings.TrimSuffix(value, "\n")
+
+		valueType, err := command.ReadType(context.Background())
 		if err != nil {
-			valueType = "string"
+			return nil, fmt.Errorf("read type %s %s: %w", command.Domain(), command.Key(), err)
 		}
-		
+
 		updatedConfigs = append(updatedConfigs, config.Config{
-			Domain: defaultsCmds[i].Domain(),
-			Key:    defaultsCmds[i].Key(),
+			Domain: command.Domain(),
+			Key:    command.Key(),
 			Value:  &value,
 			Type:   valueType,
 		})

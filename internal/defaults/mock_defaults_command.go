@@ -6,14 +6,14 @@ import (
 
 // MockDefaultsCommand is a mock implementation of the DefaultsCommand interface for testing.
 type MockDefaultsCommand struct {
-	ReadResult      string
-	ReadError       error
-	ReadTypeResult  string
-	ReadTypeError   error
-	WriteError      error
-	WriteTypeError  error
-	DomainVal       string
-	KeyVal          string
+	ReadResult     string
+	ReadError      error
+	ReadTypeResult string
+	ReadTypeError  error
+	WriteError     error
+	WriteTypeError error
+	DomainVal      string
+	KeyVal         string
 }
 
 func (m *MockDefaultsCommand) Read(ctx context.Context) (string, error) {

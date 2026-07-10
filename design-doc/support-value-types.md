@@ -7,28 +7,37 @@ Currently, mdefaults stores all macOS default values as strings, but macOS defau
 ## Solution Overview
 
 Extend the mdefaults system to:
+
 1. Detect and store value types during pull operations using `defaults read-type`
 2. Apply values with correct types during push operations using type flags
 3. Maintain backward compatibility with existing config files
-4. Support all major macOS defaults types
+4. Safely support scalar macOS defaults types
+5. Abort pull and push operations when a value cannot be read or written safely
 
 ## Technical Design
 
 ### Type System
 
-Support the following macOS defaults types:
+Support the following scalar macOS defaults types:
+
 - `string` - String values (default for backward compatibility)
 - `integer` - Integer values (mapped to `-int` flag)
 - `boolean` - Boolean values (mapped to `-bool` flag)
 - `float` - Float values (mapped to `-float` flag)
 - `date` - Date values (mapped to `-date` flag)
-- `array` - Array values (mapped to `-array` flag)
-- `dict` - Dictionary values (mapped to `-dict` flag)
-- `data` - Data values (mapped to `-data` flag)
+
+Boolean values read back by macOS as `1` or `0` are normalized to `true` or
+`false` before invoking `defaults write -bool`. The aliases `yes` and `no` are
+accepted as input; other Boolean spellings are rejected before any write.
+
+`array`, `dictionary`, and `data` values are rejected during pull and push. The
+text emitted by `defaults read` for these types cannot be safely replayed as a
+single `defaults write` argument, so failing explicitly avoids corrupting them.
 
 ### Config Structure Changes
 
 Extend the `Config` struct to include type information:
+
 ```go
 type Config struct {
     Domain string
@@ -40,19 +49,26 @@ type Config struct {
 
 ### File Format Changes
 
-New config file format (backward compatible):
-```
-domain key value type
+New config file format:
+
+```text
+domain key "escaped value" type
 ```
 
-Old format continues to work:
-```
+Values use Go-compatible quoting so spaces, quotes, tabs, and newlines survive a
+write/read round trip.
+
+Old scalar formats and pull targets continue to work:
+
+```text
 domain key value
+domain key
 ```
 
 ### Interface Extensions
 
 Extend `DefaultsCommand` interface:
+
 ```go
 type DefaultsCommand interface {
     Read(ctx context.Context) (string, error)
@@ -68,12 +84,14 @@ type DefaultsCommand interface {
 
 1. **TDD Approach**: Write tests first for each component
 2. **Backward Compatibility**: Ensure old config files continue to work
-3. **Error Handling**: Graceful fallback to string type if type detection fails
-4. **Type Mapping**: Map internal types to defaults command flags
+3. **Error Handling**: Abort the pull if value or type detection fails; defaulting an unknown type to string can corrupt macOS preferences
+4. **Type Mapping**: Map supported internal types to defaults command flags and reject unsupported types before writing anything
 
 ## Testing Strategy
 
 - Unit tests for each component with mocks
 - Integration tests with different value types
 - Backward compatibility tests
+- Quoted-value round-trip tests
 - Error handling tests
+- Tests use injected command writers so they never modify the host's macOS defaults

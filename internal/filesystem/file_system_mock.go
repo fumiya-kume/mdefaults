@@ -9,6 +9,9 @@ type MockFileSystem struct {
 	HomeDir           string
 	StatError         error
 	CreateErr         error
+	ChmodErr          error
+	ChmodName         string
+	ChmodMode         os.FileMode
 	ConfigFileContent string
 	WriteFileErr      error
 	WriteFileContent  string
@@ -31,8 +34,15 @@ func (m *MockFileSystem) Stat(name string) (os.FileInfo, error) {
 }
 
 // Create creates a new file in the mock file system.
-func (m *MockFileSystem) Create(name string) (*os.File, error) {
-	return nil, m.CreateErr
+func (m *MockFileSystem) Create(name string) error {
+	return m.CreateErr
+}
+
+// Chmod records and applies the configured permission-change result.
+func (m *MockFileSystem) Chmod(name string, mode os.FileMode) error {
+	m.ChmodName = name
+	m.ChmodMode = mode
+	return m.ChmodErr
 }
 
 // ReadFile reads a file from the mock file system.
